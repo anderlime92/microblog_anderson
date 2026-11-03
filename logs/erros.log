@@ -1,0 +1,5 @@
+[2026-11-03 11:28:23]
+Arquivo: C:\backend\microblog_anderson\src\Services\UsuarioServico.php
+Linha: 25
+Mensagem: SQLSTATE[42S02]: Base table or view not found: 1146 Table 'microblog_2026.usuario' doesn't exist
+

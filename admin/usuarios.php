@@ -1,8 +1,30 @@
-<?php require_once __DIR__ . '/../includes/cabecalho-admin.php'; ?>
+<?php 
+use Microblog\Helpers\Utils;
+use Microblog\Services\UsuarioServico;
+require_once __DIR__ . "/../vendor/autoload.php";
+
+$mensagemErro = "";
+$listaDeUsuarios = [];
+
+try {
+    $usuarioServico = new UsuarioServico();
+    $listaDeUsuarios = $usuarioServico->listarTodos();
+} catch (Exception $e) {
+    $mensagemErro = "Não foi possível carregar a lista de usuários";
+}
+require_once __DIR__ . '/../includes/cabecalho-admin.php';
+?>
 
 <div class="row">
     <article class="col-12 bg-white rounded shadow my-1 py-4">
         <h2 class="text-center">Usuários <span class="badge bg-dark">2</span></h2>
+
+        <?php if ($mensagemErro !== ""):  ?>
+            <div class="alert alert-danger text-center">
+                <?= Utils::escaparHtml($mensagemErro) ?>
+            </div>
+        <?php endif; ?>
+
         <p class="text-center mt-5">
             <a class="btn btn-primary" href="usuario-insere.php">
                 <i class="bi bi-plus-circle"></i> Inserir novo usuário
