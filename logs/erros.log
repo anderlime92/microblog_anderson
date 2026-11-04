@@ -3,3 +3,18 @@ Arquivo: C:\backend\microblog_anderson\src\Services\UsuarioServico.php
 Linha: 25
 Mensagem: SQLSTATE[42S02]: Base table or view not found: 1146 Table 'microblog_2026.usuario' doesn't exist
 
+[2026-11-04 08:52:48]
+Arquivo: C:\backend\microblog_anderson\src\Services\UsuarioServico.php
+Linha: 25
+Mensagem: SQLSTATE[42S02]: Base table or view not found: 1146 Table 'microblog_2026.usuario' doesn't exist
+
+[2026-11-04 08:52:48]
+Arquivo: C:\backend\microblog_anderson\src\Services\UsuarioServico.php
+Linha: 33
+Mensagem: Erro ao listar usuários
+
+[2026-11-04 08:54:33]
+Arquivo: C:\backend\microblog_anderson\admin\usuarios.php
+Linha: 11
+Mensagem: Call to undefined method Microblog\Services\UsuarioServico::listarTodos()
+
