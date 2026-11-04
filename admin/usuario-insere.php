@@ -70,14 +70,23 @@ require_once __DIR__ . '/../includes/cabecalho-admin.php';
 <div class="row">
     <article class="col-12 bg-white rounded shadow my-1 py-4">
         <h2 class="text-center">Inserir novo usuário</h2>
+
+        <?php if ($mensagemErro !== ""):  ?>
+            <div class="alert alert-danger text-center">
+                <?= Utils::escaparHtml($mensagemErro) ?>
+            </div>
+        <?php endif; ?>
+
         <form class="mx-auto w-75" action="" method="post" id="form-inserir" name="form-inserir">
+
+        <!-- Aplicamos o value com valores dinâmicos para garantir que os dados já digitados previamente, não sejam removidos dos campos no caso de uma falha na validação.  -->
             <div class="mb-3">
                 <label class="form-label" for="nome">Nome:</label>
-                <input class="form-control" type="text" id="nome" name="nome" value="Nome de exemplo">
+                <input class="form-control" type="text" id="nome" name="nome" value="<?= Utils::escaparHtml($nome) ?>">
             </div>
             <div class="mb-3">
                 <label class="form-label" for="email">E-mail:</label>
-                <input class="form-control" type="email" id="email" name="email" value="pessoa@exemplo.com">
+                <input class="form-control" type="email" id="email" name="email" value="<?php Utils::escaparHtml($email) ?>">
             </div>
             <div class="mb-3">
                 <label class="form-label" for="senha">Senha:</label>
