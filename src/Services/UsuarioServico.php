@@ -81,7 +81,7 @@ final class UsuarioServico
     public function atualizar(Usuario $usuario): void
     {
         $sql = "UPDATE usuarios 
-        SET nome = :nome, email, senha = :senha, tipo = :tipo
+        SET nome = :nome, email = :email, senha = :senha, tipo = :tipo
         WHERE id = :id";
 
         try {
@@ -89,7 +89,7 @@ final class UsuarioServico
             $consulta->bindValue(":nome", $usuario->getNome());
             $consulta->bindValue(":email", $usuario->getEmail());
             $consulta->bindValue(":senha", $usuario->getSenha());
-            $consulta->bindValue(":tipo", $usuario->getTipoUsuario());
+            $consulta->bindValue(":tipo", $usuario->getTipoUsuario()->value);
             $consulta->bindValue(":id", $usuario->getId());
             $consulta->execute();
         } catch (PDOException $e) {

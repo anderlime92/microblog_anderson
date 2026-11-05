@@ -1,5 +1,15 @@
-[2026-11-04 11:40:34]
+[2026-11-05 09:41:57]
 Arquivo: C:\backend\microblog_anderson\admin\usuario-atualiza.php
-Linha: 22
-Mensagem: Object of type Microblog\Services\UsuarioServico is not callable
+Linha: 74
+Mensagem: Call to a member function atualizar() on null
+
+[2026-11-05 09:42:48]
+Arquivo: C:\backend\microblog_anderson\src\Services\UsuarioServico.php
+Linha: 94
+Mensagem: SQLSTATE[HY093]: Invalid parameter number: number of bound variables does not match number of tokens
+
+[2026-11-05 09:42:48]
+Arquivo: C:\backend\microblog_anderson\src\Services\UsuarioServico.php
+Linha: 97
+Mensagem: Erro ao atualizar usuário
 
