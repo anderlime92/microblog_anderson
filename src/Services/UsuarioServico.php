@@ -1,4 +1,5 @@
 <?php
+
 namespace Microblog\Services;
 
 use Exception;
@@ -18,7 +19,7 @@ final class UsuarioServico
         $this->conexao = ConexaoBD::getConexao();
     }
 
-    public function listarTodos():array
+    public function listarTodos(): array
     {
         $sql = "SELECT id, nome, email, tipo FROM usuarios ORDER BY nome";
 
@@ -74,6 +75,26 @@ final class UsuarioServico
         } catch (PDOException $e) {
             Utils::registrarLog($e);
             throw new Exception("Erro ao buscar usuário por ID.");
+        }
+    }
+
+    public function atualizar(Usuario $usuario): void
+    {
+        $sql = "UPDATE usuarios 
+        SET nome = :nome, email, senha = :senha, tipo = :tipo
+        WHERE id = :id";
+
+        try {
+            $consulta = $this->conexao->prepare($sql);
+            $consulta->bindValue(":nome", $usuario->getNome());
+            $consulta->bindValue(":email", $usuario->getEmail());
+            $consulta->bindValue(":senha", $usuario->getSenha());
+            $consulta->bindValue(":tipo", $usuario->getTipoUsuario());
+            $consulta->bindValue(":id", $usuario->getId());
+            $consulta->execute();
+        } catch (PDOException $e) {
+            Utils::registrarLog($e);
+            throw new Exception("Erro ao atualizar usuário");
         }
     }
 }
