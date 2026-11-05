@@ -1,6 +1,8 @@
 <?php
 
+use Microblog\Enums\TipoUsuario;
 use Microblog\Helpers\Utils;
+use Microblog\Helpers\Validacoes;
 use Microblog\Services\UsuarioServico;
 
 require_once __DIR__ . '/../vendor/autoload.php';
@@ -28,7 +30,7 @@ try {
 Utils::dump($dadosUsuario);
 
 // Se a consulta retornar null e não tiver, apresentamos uma mensagem avisando que nada foi encontrado
-if($dadosUsuario === null && $mensagemErro === ""){
+if ($dadosUsuario === null && $mensagemErro === "") {
     Utils::alertaErro("Usuário não encontrado!");
 }
 
@@ -37,6 +39,25 @@ if($dadosUsuario === null && $mensagemErro === ""){
 $nome = $dadosUsuario['nome'] ?? "";
 $email = $dadosUsuario['email'] ?? "";
 $tipo = $dadosUsuario['tipo'] ?? "";
+
+if ($_SERVER["REQUEST_METHOD"] === "POST") {
+    try {
+        // Captura e normaliza os dados do formulário
+        $nome = Utils::normalizarEntrada($_POST['nome'] ?? "");
+        $email = Utils::normalizarEntrada($_POST['email'] ?? "", 'email');
+        $tipo = Utils::normalizarEntrada($_POST['tipo'] ?? "");
+
+        // Valida os dados e associa o tipo à Enumeração
+        Validacoes::validarNome($nome);
+        Validacoes::validarEmail($email);
+        Validacoes::validarTipo($tipo);
+        $tipoEnum = TipoUsuario::from($tipo);
+    } catch (InvalidArgumentException $e) {
+
+    } catch (Throwable $e) {
+        //throw $th;
+    }
+}
 
 require_once __DIR__ . '/../includes/cabecalho-admin.php';
 ?>
@@ -60,8 +81,8 @@ require_once __DIR__ . '/../includes/cabecalho-admin.php';
             <div class="mb-3">
                 <label class="form-label" for="tipo">Tipo:</label>
                 <select class="form-select" name="tipo" id="tipo">
-                    <option value="editor" <?php if($tipo === 'editor') echo 'selected' ?>>
-                    <option value="admin"><?php if($tipo === 'adminstrador') echo 'selected' ?>>
+                    <option value="editor" <?php if ($tipo === 'editor') echo 'selected' ?>>
+                    <option value="admin"><?php if ($tipo === 'adminstrador') echo 'selected' ?>>
                 </select>
             </div>
             <button class="btn btn-primary" name="atualizar"><i class="bi bi-arrow-clockwise"></i> Atualizar</button>
