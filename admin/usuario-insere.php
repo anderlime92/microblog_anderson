@@ -40,10 +40,10 @@ if ($_SERVER['REQUEST_METHOD'] === "POST") {
         $usuario = new Usuario($nome, $email, $senha, $tipoEnum);
 
         // Criar um serviço para usuario
-        $usuarioServiço = new UsuarioServico();
+        $usuarioServico = new UsuarioServico();
 
         // Iserir o usuário através do serviço
-        $usuarioServiço->inserir($usuario);
+        $usuarioServico->inserir($usuario);
 
         // Redirecionar para a página usuarios.php
         header("location:usuarios.php");

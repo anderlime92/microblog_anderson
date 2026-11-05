@@ -1,15 +1,5 @@
-[2026-11-05 09:41:57]
-Arquivo: C:\backend\microblog_anderson\admin\usuario-atualiza.php
-Linha: 74
-Mensagem: Call to a member function atualizar() on null
-
-[2026-11-05 09:42:48]
-Arquivo: C:\backend\microblog_anderson\src\Services\UsuarioServico.php
-Linha: 94
-Mensagem: SQLSTATE[HY093]: Invalid parameter number: number of bound variables does not match number of tokens
-
-[2026-11-05 09:42:48]
-Arquivo: C:\backend\microblog_anderson\src\Services\UsuarioServico.php
-Linha: 97
-Mensagem: Erro ao atualizar usuário
+[2026-11-05 11:09:29]
+Arquivo: C:\backend\microblog_anderson\admin\categorias.php
+Linha: 12
+Mensagem: Class "Microblog\Services\CategoriaServico" not found
 

@@ -1,6 +1,8 @@
-<?php 
+<?php
+
 use Microblog\Helpers\Utils;
 use Microblog\Services\UsuarioServico;
+
 require_once __DIR__ . "/../vendor/autoload.php";
 
 $mensagemErro = "";
@@ -40,34 +42,34 @@ require_once __DIR__ . '/../includes/cabecalho-admin.php';
             </a>
         </p>
         <?php if ($mensagemErro === ""): ?>
-        <div class="table-responsive">
-            <table class="table table-hover">
-                <thead class="table-light">
-                    <tr>
-                        <th>Nome</th>
-                        <th>E-mail</th>
-                        <th>Tipo</th>
-                        <th class="text-center">Operações</th>
-                    </tr>
-                </thead>
-                <tbody>
-<?php foreach($listaDeUsuarios as $itemUsuario): ?>
-                    <tr>
-                        <td> <?= Utils::escaparHtml($itemUsuario['nome']) ?></td>
-                        <td> <?= Utils::escaparHtml($itemUsuario['email']) ?></td>
-                        <td> <?= Utils::escaparHtml($itemUsuario['tipo']) ?></td>
-                        <td class="text-center">
-                            <a class="btn btn-warning" href="usuario-atualiza.php?id=<?= Utils::escaparHtml($itemUsuario['id']) ?>"><i class="bi bi-pencil"></i> Atualizar</a>
-                            <a class="btn btn-danger excluir" href="usuario-exclui.php?id=<?= Utils::escaparHtml($itemUsuario['id']) ?>"><i class="bi bi-trash"></i> Excluir</a>
-                        </td>
-                    </tr>
-                    <tr>
-                        
-                    </tr>
-<?php endforeach; ?>                    
-                </tbody>
-            </table>
-        </div>
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Nome</th>
+                            <th>E-mail</th>
+                            <th>Tipo</th>
+                            <th class="text-center">Operações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($listaDeUsuarios as $itemUsuario): ?>
+                            <tr>
+                                <td> <?= Utils::escaparHtml($itemUsuario['nome']) ?></td>
+                                <td> <?= Utils::escaparHtml($itemUsuario['email']) ?></td>
+                                <td> <?= Utils::escaparHtml($itemUsuario['tipo']) ?></td>
+                                <td class="text-center">
+                                    <a class="btn btn-warning" href="usuario-atualiza.php?id=<?= Utils::escaparHtml($itemUsuario['id']) ?>"><i class="bi bi-pencil"></i> Atualizar</a>
+                                    <a class="btn btn-danger excluir" href="usuario-exclui.php?id=<?= Utils::escaparHtml($itemUsuario['id']) ?>"><i class="bi bi-trash"></i> Excluir</a>
+                                </td>
+                            </tr>
+                            <tr>
+
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            </div>
         <?php endif; ?>
     </article>
 </div>
