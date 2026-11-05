@@ -1,4 +1,59 @@
-<?php require_once __DIR__ . '/../includes/cabecalho-admin.php'; ?>
+<?php
+
+use Microblog\Helpers\Utils;
+use Microblog\Helpers\Validacoes;
+use Microblog\Models\Categoria;
+use Microblog\Services\CategoriaServico;
+
+require_once __DIR__ . '/../vendor/autoload.php';
+
+$mensagemErro = "";
+$dadosCategoria = null;
+$categoriaServico = null;
+
+$id = Utils::normalizarEntrada($_GET['id'] ?? null, 'inteiro');
+
+Utils::verificarId($id);
+
+try {
+    $categoriaServico = new CategoriaServico();
+    $dadosCategoria = $categoriaServico->buscarPorId($id);
+} catch (Throwable $e) {
+    Utils::registrarLog($e);
+    $mensagemErro = "Não foi possível carregar os dados da categoria";
+}
+
+// Utils::dump($dadosCategoria);
+
+if ($dadosCategoria === null && $mensagemErro === "") {
+    Utils::alertaErro("Categoria não encontrada!");
+}
+
+$nome = $dadosCategoria['nome'] ?? "";
+
+if ($_SERVER["REQUEST_METHOD"] === "POST") {
+    try {
+        $nome = Utils::normalizarEntrada($_POST['categoria'] ?? "");
+
+        Validacoes::validarNome($nome);
+
+        $categoria = new Categoria($nome, $id);
+
+        $categoriaServico->atualizar($categoria);
+
+        header("location:categorias.php");
+        exit;
+
+    } catch (InvalidArgumentException $e) { 
+
+    } catch (Throwable $e) { 
+    Utils::registrarLog($e);
+    $mensagemErro = "Não foi possível atualizar tal categoria. Tente novamente";
+    }
+}
+
+require_once __DIR__ . '/../includes/cabecalho-admin.php'; 
+?>
 
 <div class="row">
     <article class="col-12 bg-white rounded shadow my-1 py-4">
@@ -6,7 +61,7 @@
         <form class="mx-auto w-75" action="" method="post" id="form-atualizar" name="form-atualizar">
             <div class="mb-3">
                 <label class="form-label" for="nome">Nome:</label>
-                <input value="Desenvolvimento" class="form-control" type="text" id="nome" name="nome">
+                <input value="Desenvolvimento" class="form-control" type="text" id="nome" name="nome" value="<?= Utils::escaparHtml($nome) ?>">
             </div>
             <button class="btn btn-primary" name="atualizar"><i class="bi bi-arrow-clockwise"></i> Atualizar</button>
         </form>
