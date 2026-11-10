@@ -1,115 +1,85 @@
 # Resumo do histórico da branch
 
-**Data da análise:** 05/11/2026
-**Branch:** `03_aula-05112026`
-**HEAD:** `3f151a7` — `Corrige atualização de usuários`
-**Estado observado:** branch sincronizada com `origin/03_aula-05112026` e árvore de trabalho limpa; esta análise atualizou este arquivo com o panorama dos commits do dia.
+**Data da análise:** 10/11/2026
+
+**Branch analisada:** `05_aula-10112026`
+
+**HEAD:** `0fcb28d` — `Validate login fields and show feedback`
+
+**Base da comparação:** `2512912` (ancestral comum com `main`)
+
+**Escopo:** 30 commits, de 03/11 a 10/11/2026; 24 arquivos alterados em relação à base, com 883 inserções e 93 remoções.
+
+**Estado ao iniciar a análise:** branch sincronizada com `origin/05_aula-10112026` e árvore de trabalho limpa.
 
 ## Visão geral
 
-Hoje a branch avançou de um estado de “carregamento inicial da edição” para um fluxo funcional de atualização de usuários. Os três commits do dia fecharam o caminho principal do formulário de edição: o serviço passou a persistir alteração no banco, a tela passou a validar e normalizar os dados do POST e a lógica de senha foi ajustada para manter o hash atual quando o campo fica vazio.
+Esta branch evolui o projeto inicial para incluir autoload PSR-4, persistência de usuários e categorias no painel administrativo, operações de cadastro/consulta/edição/exclusão e os primeiros componentes de autenticação por sessão. O fluxo de usuários abrange validação e hash de senha; o CRUD de categorias tem serviço próprio e consultas parametrizadas. No fim do histórico, foram adicionados a exigência de sessão no cabeçalho administrativo e validações/mensagens iniciais para o formulário de login.
 
-O problema principal identificado e corrigido foi a combinação de dois erros de integração: a página de atualização tentava chamar o serviço antes de instanciá-lo e o SQL do `UPDATE` estava mal montado, com um `email` sem operador `=` e o valor do tipo sendo passado em formato incorreto. Após a correção, o fluxo não apenas valida os dados como também salva a alteração e redireciona de volta à listagem.
+O ciclo de autenticação, entretanto, ainda está incompleto: o formulário de login não consulta o usuário nem valida a senha ou cria a sessão; a página de saída também continua sendo um placeholder. Assim, os componentes de sessão existem, mas o fluxo normal de entrada e saída não está conectado, e algumas operações administrativas não verificam autenticação antes de processar a requisição.
 
-## Commits de 05/11/2026
+## Evolução dos commits
 
-| Commit | Alteração principal |
-| --- | --- |
-| `31deac8` | Adiciona `UsuarioServico::atualizar()` com `UPDATE` parametrizado para o cadastro de alterações de usuário. |
-| `a6649df` | Normaliza e valida os dados do formulário de atualização (`nome`, `email`, `tipo`) e converte o tipo para o enum. |
-| `3f151a7` | Corrige a atualização de usuários, preserva a senha atual quando o campo fica vazio e ajusta o SQL e o vínculo do tipo. |
+| Período / etapa | Commits representativos | Resultado |
+| --- | --- | --- |
+| 03/11 — estrutura e listagem de usuários | `7def2e8` a `fc6d14c` | Configura namespaces e PSR-4, conexão/serviço de usuários e listagem dinâmica no painel. |
+| 04/11 — cadastro e edição de usuários | `a57ee8c` a `981ff20` | Adiciona logs, inserção, ID opcional no modelo, validações, hash de senha, busca por ID e preenchimento do formulário de edição. |
+| 05/11 — atualização de usuários e CRUD inicial de categorias | `31deac8` a `67f1239` | Implementa atualização de usuários e inicia cadastro/listagem/edição de categorias. |
+| 10/11 — correções, exclusões e acesso | `47e912f` a `0fcb28d` | Corrige formulários/serviços de categorias, adiciona exclusão de categorias e usuários, controle de sessão, proteção inicial do painel e feedback no login. |
 
-## Alterações implementadas
+O HEAD desta análise é `0fcb28d`. A branch local e sua referência remota estavam no mesmo commit. A comparação considera o ancestral comum `2512912`; `origin/main` tem histórico próprio posterior a esse ponto.
 
-### 1) Serviço de atualização
+## Funcionalidades implementadas
 
-- `src/Services/UsuarioServico.php` foi ampliado com `atualizar(Usuario $usuario): void`.
-- A query usa `UPDATE usuarios SET nome = :nome, email = :email, senha = :senha, tipo = :tipo WHERE id = :id`.
-- Cada parâmetro foi corretamente vinculado com `bindValue()`, inclusive `:tipo` usando `->value` do enum e `:id` com o identificador do usuário.
-- Em caso de falha de PDO, o erro é registrado em `logs/erros.log` e uma exceção genérica é lançada para a camada de apresentação.
+### Infraestrutura e modelos
 
-### 2) Fluxo de edição no painel administrativo
+- [composer.json](composer.json) define o autoload PSR-4 para o namespace `Microblog\\`; `.gitignore` exclui `vendor/` do versionamento.
+- Serviços, modelos, enums e helpers foram organizados em namespaces. `Usuario` aceita ID opcional, e os tipos de usuário/destaque são representados por enums.
+- [src/Helpers/Utils.php](src/Helpers/Utils.php) centraliza normalização, escaping HTML, hash/verificação de senha e registro de erros; [src/Helpers/Validacoes.php](src/Helpers/Validacoes.php) reúne validações reutilizadas pelas telas.
 
-- `admin/usuario-atualiza.php` agora:
-  - lê o `id` da URL com normalização e validação;
-  - busca o usuário em `UsuarioServico::buscarPorId()`;
-  - mantém os valores iniciais de `nome`, `email` e `tipo` quando a página é exibida;
-  - trata `POST` para receber e validar os dados enviados;
-  - converte o tipo informado em `TipoUsuario::from($tipo)`;
-  - decide se mantém a senha atual ou codifica uma nova senha;
-  - cria uma instância de `Usuario` com os dados atualizados;
-  - chama `$usuarioServico->atualizar($usuario)`;
-  - redireciona para `usuarios.php` após sucesso.
+### Usuários
 
-- O login/validação usa utilitários já existentes: `Utils::normalizarEntrada()`, `Validacoes::validarNome()`, `Validacoes::validarEmail()`, `Validacoes::validarSenha()` e `Validacoes::validarTipo()`.
+- [src/Services/UsuarioServico.php](src/Services/UsuarioServico.php) implementa listagem, inserção, busca por ID, atualização e exclusão com PDO e parâmetros preparados.
+- As páginas administrativas [admin/usuarios.php](admin/usuarios.php), [admin/usuario-insere.php](admin/usuario-insere.php), [admin/usuario-atualiza.php](admin/usuario-atualiza.php) e [admin/usuario-exclui.php](admin/usuario-exclui.php) conectam as operações ao painel.
+- Cadastro e edição normalizam e validam nome, e-mail, tipo e senha; a senha é armazenada como hash. Na edição, deixar a senha vazia preserva o hash existente; informar uma senha nova aciona validação e geração de hash.
+- As listagens e valores apresentados são escapados para HTML. A edição busca o registro pelo ID, carrega os valores atuais e, após persistir, redireciona à listagem.
 
-### 3) Tratamento de senha
+### Categorias
 
-- Quando o campo de senha fica em branco, a aplicação preserva o hash já salvo no banco com `password_verify()`/`Utils::verificarSenha()`.
-- Quando o usuário digita uma nova senha, a validação exige que a string não seja vazia e tenha ao menos 5 caracteres.
-- Se a senha digitada for igual à já armazenada, a lógica mantém o hash atual; se for diferente, gera um novo hash antes do `UPDATE`.
+- [src/Services/CategoriaServico.php](src/Services/CategoriaServico.php) implementa listagem, inserção, busca por ID, atualização e exclusão.
+- [admin/categorias.php](admin/categorias.php), [admin/categoria-insere.php](admin/categoria-insere.php), [admin/categoria-atualiza.php](admin/categoria-atualiza.php) e [admin/categoria-exclui.php](admin/categoria-exclui.php) fornecem as telas/ações do CRUD.
+- O formulário de edição foi corrigido para exibir o nome carregado. Os serviços usam consultas parametrizadas e as telas tratam falhas com mensagens genéricas e registro de exceções.
 
-### 4) Correções de interface e segurança
+### Sessão e login
 
-- Os campos de `nome` e `email` passaram a imprimir o valor com `<?= Utils::escaparHtml(...) ?>`, resolvendo o problema em que a função retornava uma string mas o valor não era emitido no HTML.
-- O `<select>` de tipo foi corrigido para exibir opções com rótulos visíveis e comparar corretamente com o valor `admin` do enum.
-- A depuração `Utils::dump($dadosUsuario)` foi removida da página, evitando expor hash de senha e dados sensíveis durante o carregamento da tela.
-- O valor de `tipo` no formulário agora mantém a seleção correta quando o usuário é carregado da base.
+- [src/Auth/ControleDeAcesso.php](src/Auth/ControleDeAcesso.php) fornece inicialização e encerramento de sessão, métodos `login()`/`logout()` e `exigirLogin()` baseado na existência do ID na sessão.
+- [includes/cabecalho-admin.php](includes/cabecalho-admin.php) chama `exigirLogin()` antes de renderizar o cabeçalho administrativo.
+- [login.php](login.php) normaliza e-mail, detecta campos vazios e apresenta feedback para parâmetros de login/logout/acesso negado/erro recebidos pela URL.
 
-### 5) Acompanhamento de erros
+## Correções relevantes durante o desenvolvimento
 
-- O log em `logs/erros.log` registra as falhas do fluxo ao longo do dia, incluindo:
-  - tentativa de chamar `atualizar()` em um objeto nulo;
-  - erro de SQL por parâmetro ausente no `UPDATE`;
-  - falha final do processamento e o problema do mapeamento do tipo no `UPDATE`.
-- Esses registros demonstram claramente que o problema de integração era estrutural: serviço não instanciado, sintaxe SQL incorreta e enum do tipo enviado no formato errado.
+- A atualização de usuários recebeu correções no SQL (`email = :email`), no vínculo do enum e na instanciação/uso do serviço.
+- O fluxo de edição de usuário passou a carregar os dados existentes e a preservar a senha quando o campo correspondente não é preenchido.
+- Uma falha de preenchimento do nome na edição de categoria foi corrigida, assim como problemas de carregamento do serviço e integração das telas do CRUD de categorias.
+- O login trata campos obrigatórios e os valores de feedback são escapados ao serem exibidos. Isso ainda não equivale a autenticação funcional.
 
-## Diagnóstico dos erros corrigidos
+## Limitações e riscos observados no código atual
 
-### Problema 1: `$usuarioServico` nulo
+1. **Login não autentica:** o POST de [login.php](login.php) só verifica campos vazios. Não busca o usuário, não verifica a senha e não chama `ControleDeAcesso::login()`. Portanto, o formulário não cria a sessão necessária ao painel; alguns parâmetros de feedback não são produzidos por esse processamento.
+2. **Logout não conectado:** [admin/sair.php](admin/sair.php) exibe uma mensagem de funcionalidade futura e não chama `ControleDeAcesso::logout()`.
+3. **Proteção de rotas incompleta:** o cabeçalho exige login quando é incluído, mas páginas de cadastro/edição processam POST antes de incluí-lo. As páginas de exclusão de usuários e categorias executam a ação sem chamar `exigirLogin()`.
+4. **Autorização por perfil ausente:** a checagem atual confirma apenas a presença de `$_SESSION['id']`; não há controle efetivo por tipo de usuário para limitar operações administrativas.
+5. **Exclusões sem proteção adequada:** as ações são acionadas por links/GET e não há token CSRF visível. Recomenda-se usar POST, verificar autorização no início do endpoint e incluir proteção contra CSRF.
+6. **Feedback e formulários:** o `catch (InvalidArgumentException $e)` da edição de usuários está vazio e certas mensagens de erro não são apresentadas. No cadastro, o valor de e-mail é escapado, mas a chamada não é impressa no atributo `value`, portanto o campo não é restaurado após erro.
+7. **Sessão e validação de dados:** `login()` não regenera o ID da sessão; não há política visível de expiração. Também não se observa tratamento específico de e-mail duplicado na camada de aplicação.
+8. **Logs:** [logs/erros.log](logs/erros.log) contém falhas históricas durante o desenvolvimento. São úteis como contexto, mas não confirmam isoladamente que o problema ainda ocorre no código atual.
 
-Ao tentar confirmar a atualização no formulário, o código fazia uma chamada direta a `$usuarioServico->atualizar()` mesmo sem instanciar o objeto. O erro observado foi:
+## Testes e validação
 
-- `Call to a member function atualizar() on null`
+- Não foram encontrados arquivos/configuração de testes automatizados nem scripts de teste no `composer.json`.
+- O log contém registros históricos de erros, não uma suíte de validação.
+- Esta análise foi feita por inspeção do histórico e do código; não foram executados fluxos PHP/MySQL nesta atualização do resumo. Para validar o comportamento em execução, são necessários ambiente PHP e banco configurados e testes de CRUD, login, autorização por perfil, logout, erros de formulário e proteção CSRF.
 
-A correção foi garantir que o serviço fosse inicializado antes do processamento do POST, dentro do bloco que carrega o usuário e usa o mesmo objeto para persistência.
+## Síntese
 
-### Problema 2: SQL inválido no `UPDATE`
-
-O comando de atualização foi montado com a sintaxe errada:
-
-- `SET nome = :nome, email, senha = :senha, tipo = :tipo`
-
-Esse trecho faltava a atribuição `= :email` e o valor do tipo estava sendo enviado sem converter para o valor do enum. O erro capturado foi:
-
-- `SQLSTATE[HY093]: Invalid parameter number: number of bound variables does not match number of tokens`
-
-A correção foi ajustar o SQL e vincular `:tipo` com `$usuario->getTipoUsuario()->value`.
-
-### Problema 3: preservação de senha e hash
-
-O processo de atualização original tratava a senha como sempre nova, sem respeitar o campo vazio do formulário. Isso poderia sobrescrever o hash do banco com texto inválido ou causar problemas de comparação. A solução foi fazer a lógica: se a senha estiver vazia, manter o hash atual; se houver nova senha, validar e codificar antes do `UPDATE`.
-
-## Pontos de atenção ainda relevantes
-
-1. Os blocos `catch (InvalidArgumentException $e) {}` continuam vazios; a interface ainda não mostra mensagens específicas de validação ao usuário. Isso é um ponto de melhoria para UX e feedback.
-2. O `header("location:usuarios.php")` deve continuar a funcionar apenas em fluxo sem saída anterior; o script já usa `exit` imediatamente após o redirect, o que está correto.
-3. `logs/erros.log` continua sendo um arquivo de rastreio do ambiente local e pode receber entradas futuras. Ele deve ser revisado apenas como evidência de diagnóstico, não como garantia de status funcional atual.
-4. Ainda não há uma suíte automatizada de testes para validar cadastro, busca e atualização de usuários, o que aumenta o risco de regressões conforme a aplicação evolui.
-
-## Contexto da branch e evolução anterior
-
-A branch `03_aula-05112026` se originou do fluxo anterior de usuários em que a aplicação já havia implementado:
-
-- carregamento do autoload;
-- conexão com PDO;
-- modelagem do `Usuario` com suporte a `?int $id`;
-- listagem dinâmica de usuários;
-- cadastro com validação e criptografia;
-- busca por ID para a tela de edição.
-
-Os commits de hoje fecharam o ciclo de atualização, transformando a edição de dados em um processo funcional de persistência real, em vez de apenas leitura e preenchimento de formulário.
-
-## Síntese final
-
-O conjunto de alterações do dia consolidou a operação de atualização de usuários no painel administrativo. O código está consistente com o fluxo de negócio esperado: buscar, validar, preservar dados sensíveis quando necessário, persistir e redirecionar. O que falta agora é reforçar a experiência de erro do usuário no formulário e cobrir esse comportamento com testes automatizados para evitar regressões futuras.
+A branch entrega uma evolução substancial do painel: infraestrutura PSR-4, CRUD de usuários e categorias, validações, hash de senhas e os primeiros mecanismos de sessão. Os próximos itens prioritários são completar a autenticação e o logout, aplicar autorização no início de todos os endpoints de escrita, proteger exclusões contra CSRF e cobrir os fluxos com testes automatizados.
