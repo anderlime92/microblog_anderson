@@ -1,3 +1,12 @@
+<?php
+require_once __DIR__ . "/../vendor/autoload.php";
+
+use Microblog\Auth\ControleDeAcesso;
+
+ControleDeAcesso::exigirLogin();
+
+?>
+
 <!DOCTYPE html>
 <html lang="pt-br" class="h-100">
 
