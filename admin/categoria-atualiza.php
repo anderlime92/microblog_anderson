@@ -33,7 +33,8 @@ $nome = $dadosCategoria['nome'] ?? "";
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
     try {
-        $nome = Utils::normalizarEntrada($_POST['categoria'] ?? "");
+        // $nome = Utils::normalizarEntrada($_POST['categoria'] ?? "");
+        $nome = Utils::normalizarEntrada($_POST['nome'] ?? ""); // correção
 
         Validacoes::validarNome($nome);
 
