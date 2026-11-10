@@ -1,5 +1,4 @@
 <?php
-
 namespace Microblog\Services;
 
 use Exception;
@@ -18,7 +17,7 @@ final class CategoriaServico
         $this->conexao = ConexaoBD::getConexao();
     }
 
-    public function listarTodos(): array
+    public function listarTodos():array
     {
         $sql = "SELECT id, nome FROM categorias ORDER BY nome";
 
@@ -26,23 +25,18 @@ final class CategoriaServico
             $consulta = $this->conexao->query($sql);
             return $consulta->fetchAll();
         } catch (PDOException $e) {
-
             Utils::registrarLog($e);
-
             throw new Exception("Erro ao listar categorias");
         }
     }
 
     public function inserir(Categoria $categoria): void
     {
-        $sql = "INSERT INTO categorias (nome)
-        VALUES(:nome)";
+        $sql = "INSERT INTO categorias (nome) VALUES(:nome)";
 
         try {
             $consulta = $this->conexao->prepare($sql);
-
             $consulta->bindValue(":nome", $categoria->getNome());
-
             $consulta->execute();
         } catch (PDOException $e) {
             Utils::registrarLog($e);
@@ -58,9 +52,7 @@ final class CategoriaServico
             $consulta = $this->conexao->prepare($sql);
             $consulta->bindValue(":id", $id);
             $consulta->execute();
-
             return $consulta->fetch() ?: null;
-
         } catch (PDOException $e) {
             Utils::registrarLog($e);
             throw new Exception("Erro ao buscar categoria por ID.");
@@ -69,9 +61,7 @@ final class CategoriaServico
 
     public function atualizar(Categoria $categoria): void
     {
-        $sql = "UPDATE categorias 
-        SET nome = :nome
-        WHERE id = :id";
+        $sql = "UPDATE categorias SET nome = :nome WHERE id = :id";
 
         try {
             $consulta = $this->conexao->prepare($sql);
