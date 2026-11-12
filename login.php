@@ -1,20 +1,21 @@
 <?php
 
 use Microblog\Helpers\Utils;
+use Microblog\Services\UsuarioServico;
 
 require_once __DIR__ . '/vendor/autoload.php';
 
 /* Mensagens relacionadas ao processo de login/logout */
-if( isset($_GET["campos_obrigatorios"]) ){
-	$feedback = "Preencha e-mail e senha!";
-} elseif( isset($_GET['dados_incorretos']) ){
-	$feedback = "Algo de errado não está certo!";
-} elseif( isset($_GET['logout']) ){
-	$feedback = "Você saiu do sistema!";
-} elseif( isset($_GET['acesso_proibido']) ){
-	$feedback = "Você deve logar primeiro";
+if (isset($_GET["campos_obrigatorios"])) {
+    $feedback = "Preencha e-mail e senha!";
+} elseif (isset($_GET['dados_incorretos'])) {
+    $feedback = "Algo de errado não está certo!";
+} elseif (isset($_GET['logout'])) {
+    $feedback = "Você saiu do sistema!";
+} elseif (isset($_GET['acesso_proibido'])) {
+    $feedback = "Você deve logar primeiro";
 } elseif (isset($_GET['erro'])) {
-	$feedback = "Não foi possível entrar agora. Tente novamente.";
+    $feedback = "Não foi possível entrar agora. Tente novamente.";
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -23,9 +24,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $senhaRecebida = $_POST['senha'] ?? '';
 
     // Verificar se algum campo está vazio
-    if($email === '' || $senhaRecebida === '') {
+    if ($email === '' || $senhaRecebida === '') {
         header("location:login.php?campos_obrigatorios");
         exit;
+    }
+
+    try {
+        // Buscando o usuário no BD através do e-mail informado
+        $usuarioServico = new UsuarioServico();
+        $usuario = $usuarioServico->buscarPorEmail($email);
+    } catch (Throwable $e) {
+        Utils::registrarLog($e);
+        header("location:login.php?erro");
+        exit;
+        //throw $th;
     }
 }
 
@@ -37,12 +49,12 @@ require_once __DIR__ . '/includes/cabecalho.php'; ?>
 
         <form action="" method="post" id="form-login" class="mx-auto w-50">
 
-        <!-- Se existir alguma mensagem na variável $feedback, mostramos a mensagem para a pessoa. -->
-          <?php if (isset($feedback)): ?>
-            <p class="my-2 alert alert-warning text-center">
-                <?= Utils::escaparHtml($feedback) ?>
-            </p>
-          <?php endif; ?>
+            <!-- Se existir alguma mensagem na variável $feedback, mostramos a mensagem para a pessoa. -->
+            <?php if (isset($feedback)): ?>
+                <p class="my-2 alert alert-warning text-center">
+                    <?= Utils::escaparHtml($feedback) ?>
+                </p>
+            <?php endif; ?>
 
             <div class="mb-3">
                 <label for="email" class="form-label">E-mail:</label>
@@ -54,7 +66,7 @@ require_once __DIR__ . '/includes/cabecalho.php'; ?>
             </div>
 
             <button class="btn btn-primary btn-lg" type="submit">Entrar</button>
-            
+
         </form>
     </div>
 </div>
