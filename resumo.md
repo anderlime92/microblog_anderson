@@ -1,85 +1,85 @@
-# Resumo do histórico da branch
+﻿# Resumo do histórico da branch
 
-**Data da análise:** 10/11/2026
+**Data da análise:** 12/11/2026
 
-**Branch analisada:** `05_aula-10112026`
+**Branch analisada:** `06_aula-12112026`
 
-**HEAD:** `0fcb28d` — `Validate login fields and show feedback`
+**HEAD:** `deeee07` — `Implementa atualização do perfil do usuário`
 
 **Base da comparação:** `2512912` (ancestral comum com `main`)
 
-**Escopo:** 30 commits, de 03/11 a 10/11/2026; 24 arquivos alterados em relação à base, com 883 inserções e 93 remoções.
+**Escopo:** 42 commits desde a base; 27 arquivos alterados, com 1.073 inserções e 111 remoções.
 
-**Estado ao iniciar a análise:** branch sincronizada com `origin/05_aula-10112026` e árvore de trabalho limpa.
+**Estado ao iniciar a análise:** branch sincronizada com `origin/06_aula-12112026` e árvore de trabalho limpa.
 
 ## Visão geral
 
-Esta branch evolui o projeto inicial para incluir autoload PSR-4, persistência de usuários e categorias no painel administrativo, operações de cadastro/consulta/edição/exclusão e os primeiros componentes de autenticação por sessão. O fluxo de usuários abrange validação e hash de senha; o CRUD de categorias tem serviço próprio e consultas parametrizadas. No fim do histórico, foram adicionados a exigência de sessão no cabeçalho administrativo e validações/mensagens iniciais para o formulário de login.
+A branch atual consolida o fluxo de autenticação e autorização do painel administrativo, além de finalizar a edição do perfil do usuário. Depois da base de CRUD de usuários e categorias, o desenvolvimento evoluiu para um fluxo completo de login, sessão, controle de acesso, navegação condicional por perfil e atualização de dados pessoais do usuário logado.
 
-O ciclo de autenticação, entretanto, ainda está incompleto: o formulário de login não consulta o usuário nem valida a senha ou cria a sessão; a página de saída também continua sendo um placeholder. Assim, os componentes de sessão existem, mas o fluxo normal de entrada e saída não está conectado, e algumas operações administrativas não verificam autenticação antes de processar a requisição.
+O projeto já está em uma etapa muito mais próxima do uso real: o sistema identifica o usuário pelo e-mail, valida a senha, cria a sessão com nome, tipo e ID, bloqueia páginas administrativas sem login e separa visibilidade de links e ações por nível de acesso. O painel também passa a exibir feedback mais amigável e a impedir ações inseguras, como a exclusão da própria conta.
 
 ## Evolução dos commits
 
 | Período / etapa | Commits representativos | Resultado |
 | --- | --- | --- |
-| 03/11 — estrutura e listagem de usuários | `7def2e8` a `fc6d14c` | Configura namespaces e PSR-4, conexão/serviço de usuários e listagem dinâmica no painel. |
-| 04/11 — cadastro e edição de usuários | `a57ee8c` a `981ff20` | Adiciona logs, inserção, ID opcional no modelo, validações, hash de senha, busca por ID e preenchimento do formulário de edição. |
-| 05/11 — atualização de usuários e CRUD inicial de categorias | `31deac8` a `67f1239` | Implementa atualização de usuários e inicia cadastro/listagem/edição de categorias. |
-| 10/11 — correções, exclusões e acesso | `47e912f` a `0fcb28d` | Corrige formulários/serviços de categorias, adiciona exclusão de categorias e usuários, controle de sessão, proteção inicial do painel e feedback no login. |
+| 03/11 a 10/11 | `7def2e8` a `0fcb28d` | Estrutura do projeto, PSR-4, CRUD de usuários e categorias, validações e primeiros elementos de sessão. |
+| 10/11 a 12/11 | `863ac7e` a `deeee07` | Login funcional com senha, sessão, proteção de rotas, controle de acesso por perfil, logout e atualização do próprio perfil. |
 
-O HEAD desta análise é `0fcb28d`. A branch local e sua referência remota estavam no mesmo commit. A comparação considera o ancestral comum `2512912`; `origin/main` tem histórico próprio posterior a esse ponto.
+O HEAD atual é `deeee07`. A comparação da branch foi feita contra a base ancestral `2512912`, e a referência remota `origin/06_aula-12112026` está sincronizada com o branch local.
 
 ## Funcionalidades implementadas
 
-### Infraestrutura e modelos
+### Infraestrutura e autenticação
 
-- [composer.json](composer.json) define o autoload PSR-4 para o namespace `Microblog\\`; `.gitignore` exclui `vendor/` do versionamento.
-- Serviços, modelos, enums e helpers foram organizados em namespaces. `Usuario` aceita ID opcional, e os tipos de usuário/destaque são representados por enums.
-- [src/Helpers/Utils.php](src/Helpers/Utils.php) centraliza normalização, escaping HTML, hash/verificação de senha e registro de erros; [src/Helpers/Validacoes.php](src/Helpers/Validacoes.php) reúne validações reutilizadas pelas telas.
+- [src/Auth/ControleDeAcesso.php](src/Auth/ControleDeAcesso.php) centraliza a criação, destruição e verificação da sessão.
+- Os métodos `login()`, `logout()`, `exigirLogin()` e `exigirAdmin()` já fazem o fluxo de autenticação e autorização do painel.
+- A sessão agora salva `id`, `nome` e `tipo`, permitindo usar esse estado em várias páginas administrativas.
+- [login.php](login.php) valida campos obrigatórios, localiza o usuário por e-mail e usa `password_verify()` para confirmar a senha.
+- [admin/sair.php](admin/sair.php) agora executa `ControleDeAcesso::logout()` e redireciona com feedback `logout`.
 
-### Usuários
+### Administração e permissões
 
-- [src/Services/UsuarioServico.php](src/Services/UsuarioServico.php) implementa listagem, inserção, busca por ID, atualização e exclusão com PDO e parâmetros preparados.
-- As páginas administrativas [admin/usuarios.php](admin/usuarios.php), [admin/usuario-insere.php](admin/usuario-insere.php), [admin/usuario-atualiza.php](admin/usuario-atualiza.php) e [admin/usuario-exclui.php](admin/usuario-exclui.php) conectam as operações ao painel.
-- Cadastro e edição normalizam e validam nome, e-mail, tipo e senha; a senha é armazenada como hash. Na edição, deixar a senha vazia preserva o hash existente; informar uma senha nova aciona validação e geração de hash.
-- As listagens e valores apresentados são escapados para HTML. A edição busca o registro pelo ID, carrega os valores atuais e, após persistir, redireciona à listagem.
+- [includes/cabecalho-admin.php](includes/cabecalho-admin.php) exige login antes de renderizar o painel administrativo.
+- [admin/index.php](admin/index.php) exibe uma mensagem de boas-vindas com o nome do usuário logado e o tipo do perfil.
+- [src/Auth/ControleDeAcesso.php](src/Auth/ControleDeAcesso.php) também possui `usuarioEhAdmin()` e `exigirAdmin()`, usados para limitar ações e links do administrador.
+- [admin/usuario-exclui.php](admin/usuario-exclui.php) bloqueia a exclusão da própria conta, evitando que um usuário se remova da sessão atual.
+- [admin/usuarios.php](admin/usuarios.php) e outros painéis agora exibem opções de gerenciamento apenas para administradores, com base em `$_SESSION['tipo']`.
 
-### Categorias
+### Perfil do usuário logado
 
-- [src/Services/CategoriaServico.php](src/Services/CategoriaServico.php) implementa listagem, inserção, busca por ID, atualização e exclusão.
-- [admin/categorias.php](admin/categorias.php), [admin/categoria-insere.php](admin/categoria-insere.php), [admin/categoria-atualiza.php](admin/categoria-atualiza.php) e [admin/categoria-exclui.php](admin/categoria-exclui.php) fornecem as telas/ações do CRUD.
-- O formulário de edição foi corrigido para exibir o nome carregado. Os serviços usam consultas parametrizadas e as telas tratam falhas com mensagens genéricas e registro de exceções.
+- [admin/meu-perfil.php](admin/meu-perfil.php) carrega os dados do usuário autenticado por ID e permite atualizar nome, e-mail e senha.
+- Quando a senha fica em branco, o sistema preserva o hash atual; quando preenchida, valida a nova senha e salva o hash atualizado.
+- Após a atualização, o nome do usuário em sessão também é sincronizado com `$_SESSION['nome']`, para manter o painel consistente.
+- O perfil usa `Utils::escaparHtml()` para evitar renderização insegura dos dados em tela.
 
-### Sessão e login
+### Mensagens e UX do painel
 
-- [src/Auth/ControleDeAcesso.php](src/Auth/ControleDeAcesso.php) fornece inicialização e encerramento de sessão, métodos `login()`/`logout()` e `exigirLogin()` baseado na existência do ID na sessão.
-- [includes/cabecalho-admin.php](includes/cabecalho-admin.php) chama `exigirLogin()` antes de renderizar o cabeçalho administrativo.
-- [login.php](login.php) normaliza e-mail, detecta campos vazios e apresenta feedback para parâmetros de login/logout/acesso negado/erro recebidos pela URL.
+- O projeto passou a customizar mensagens do painel administrativo, com feedback de `perfil_atualizado`, `logout`, `acesso_proibido`, `dados_incorretos` e `campos_obrigatorios` em [login.php](login.php).
+- [admin/index.php](admin/index.php) e [includes/cabecalho-admin.php](includes/cabecalho-admin.php) refazem a apresentação do painel, mostrando o acesso de forma mais clara.
+- Os links de categorias e usuários agora ficam ocultos para usuários sem privilégio de administrador.
 
-## Correções relevantes durante o desenvolvimento
+## Correções relevantes durante a etapa final
 
-- A atualização de usuários recebeu correções no SQL (`email = :email`), no vínculo do enum e na instanciação/uso do serviço.
-- O fluxo de edição de usuário passou a carregar os dados existentes e a preservar a senha quando o campo correspondente não é preenchido.
-- Uma falha de preenchimento do nome na edição de categoria foi corrigida, assim como problemas de carregamento do serviço e integração das telas do CRUD de categorias.
-- O login trata campos obrigatórios e os valores de feedback são escapados ao serem exibidos. Isso ainda não equivale a autenticação funcional.
+- O login passou a consultar o usuário pelo e-mail e a validar a senha com `password_verify()` antes de criar a sessão.
+- Os endpoints administrativos começaram a usar `exigirLogin()` e `exigirAdmin()` para impedir acesso indevido.
+- A exclusão de usuário foi reforçada para impedir remoção do próprio perfil.
+- O perfil do usuário deixou de ser apenas leitura e passou a atualizar os dados persistidos no banco.
+- O painel administrativo passou a exibir informações do usuário autenticado dinamicamente, em vez de depender apenas de dados fixos.
 
-## Limitações e riscos observados no código atual
+## Limitações e riscos observados
 
-1. **Login não autentica:** o POST de [login.php](login.php) só verifica campos vazios. Não busca o usuário, não verifica a senha e não chama `ControleDeAcesso::login()`. Portanto, o formulário não cria a sessão necessária ao painel; alguns parâmetros de feedback não são produzidos por esse processamento.
-2. **Logout não conectado:** [admin/sair.php](admin/sair.php) exibe uma mensagem de funcionalidade futura e não chama `ControleDeAcesso::logout()`.
-3. **Proteção de rotas incompleta:** o cabeçalho exige login quando é incluído, mas páginas de cadastro/edição processam POST antes de incluí-lo. As páginas de exclusão de usuários e categorias executam a ação sem chamar `exigirLogin()`.
-4. **Autorização por perfil ausente:** a checagem atual confirma apenas a presença de `$_SESSION['id']`; não há controle efetivo por tipo de usuário para limitar operações administrativas.
-5. **Exclusões sem proteção adequada:** as ações são acionadas por links/GET e não há token CSRF visível. Recomenda-se usar POST, verificar autorização no início do endpoint e incluir proteção contra CSRF.
-6. **Feedback e formulários:** o `catch (InvalidArgumentException $e)` da edição de usuários está vazio e certas mensagens de erro não são apresentadas. No cadastro, o valor de e-mail é escapado, mas a chamada não é impressa no atributo `value`, portanto o campo não é restaurado após erro.
-7. **Sessão e validação de dados:** `login()` não regenera o ID da sessão; não há política visível de expiração. Também não se observa tratamento específico de e-mail duplicado na camada de aplicação.
-8. **Logs:** [logs/erros.log](logs/erros.log) contém falhas históricas durante o desenvolvimento. São úteis como contexto, mas não confirmam isoladamente que o problema ainda ocorre no código atual.
+1. **Proteção CSRF ausente:** ainda não há token ou verificação de origem para formulários de escrita e exclusão.
+2. **Autorização detalhada incompleta:** o sistema distingue apenas administrador e não-administrador; a lógica de editor/usuário comum ainda não está detalhada em todas as rotas.
+3. **Exclusões por GET:** páginas de exclusão ainda dependem de links/GET, o que é mais frágil do que um fluxo por POST com confirmação.
+4. **Sem suíte de testes automatizados:** não há testes de regressão para login, sessão, perfil, permissões e exclusão.
+5. **Feedback de erros de edição e formulário ainda pode ser melhorado:** há pontos de validação e UX que ainda podem ser refinados para retorno mais consistente ao usuário.
 
 ## Testes e validação
 
-- Não foram encontrados arquivos/configuração de testes automatizados nem scripts de teste no `composer.json`.
-- O log contém registros históricos de erros, não uma suíte de validação.
-- Esta análise foi feita por inspeção do histórico e do código; não foram executados fluxos PHP/MySQL nesta atualização do resumo. Para validar o comportamento em execução, são necessários ambiente PHP e banco configurados e testes de CRUD, login, autorização por perfil, logout, erros de formulário e proteção CSRF.
+- Não foram encontrados arquivos de testes automatizados no projeto no momento desta revisão.
+- A validação foi feita por inspeção do histórico do Git e do código-fonte atual; não houve execução de testes de integração PHP/MySQL nesta análise.
+- O comportamento principal foi conferido via leitura dos arquivos relevantes e do fluxo de commits até o HEAD atual.
 
 ## Síntese
 
-A branch entrega uma evolução substancial do painel: infraestrutura PSR-4, CRUD de usuários e categorias, validações, hash de senhas e os primeiros mecanismos de sessão. Os próximos itens prioritários são completar a autenticação e o logout, aplicar autorização no início de todos os endpoints de escrita, proteger exclusões contra CSRF e cobrir os fluxos com testes automatizados.
+A branch `06_aula-12112026` entrega um salto importante no projeto: o fluxo administrativo passa a ter autenticação real, sessão funcional, controle de permissões, logout efetivo, painel personalizado e atualização de perfil do usuário logado. O próximo passo natural é reforçar as medidas de segurança com CSRF, padronizar autorização por perfil em todos os endpoints e cobrir o comportamento com testes automatizados.
