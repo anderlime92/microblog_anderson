@@ -34,8 +34,12 @@ ControleDeAcesso::exigirLogin();
                         <li class="nav-item"><a class="nav-link" href="index.php">Home</a></li>
                         <li class="nav-item"><a class="nav-link" href="meu-perfil.php">Meu perfil</a></li>
                         <li class="nav-item"><a class="nav-link" href="noticias.php">Notícias</a></li>
+                        
+                      <?php if(ControleDeAcesso::usuarioEhAdmin()): ?>  
                         <li class="nav-item"><a class="nav-link" href="categorias.php">Categorias</a></li>
                         <li class="nav-item"><a class="nav-link" href="usuarios.php">Usuários</a></li>
+                      <?php endif; ?>
+
                         <li class="nav-item"><a class="nav-link" href="../index.php" target="_blank">Área pública</a></li>
                         <li class="nav-item"><a class="nav-link fw-bold" href="sair.php"><i class="bi bi-x-circle"></i> Sair</a></li>
                     </ul>
