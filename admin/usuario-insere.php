@@ -1,5 +1,6 @@
 <?php
 
+use Microblog\Auth\ControleDeAcesso;
 use Microblog\Enums\TipoUsuario;
 use Microblog\Helpers\Utils;
 use Microblog\Helpers\Validacoes;
@@ -7,6 +8,8 @@ use Microblog\Models\Usuario;
 use Microblog\Services\UsuarioServico;
 
 require_once __DIR__ . '/../vendor/autoload.php';
+
+ControleDeAcesso::exigirAdmin();
 
 // Inicializa variáveis para armazenar mensagens de erro e valores do formulário
 $mensagemErro = "";
