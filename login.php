@@ -37,8 +37,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         Utils::registrarLog($e);
         header("location:login.php?erro");
         exit;
-        //throw $th;
     }
+
+    Utils::dump($usuario);
 }
 
 require_once __DIR__ . '/includes/cabecalho.php'; ?>

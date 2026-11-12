@@ -1,5 +1,5 @@
-[2026-11-10 09:34:54]
-Arquivo: C:\backend\microblog_anderson\admin\categorias.php
-Linha: 11
-Mensagem: Class "Microblog\Services\CategoriaServico" not found
+[2026-11-12 08:54:42]
+Arquivo: C:\backend\microblog_anderson\src\Services\UsuarioServico.php
+Linha: 126
+Mensagem: Microblog\Services\UsuarioServico::buscarPorEmail(): Return value must be of type ?array, none returned
 
