@@ -51,7 +51,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     } catch (InvalidArgumentException $e) {
         $mensagemErro = $e->getMessage();
-    } catch {
+    } catch (Throwable $e){
         Utils::registrarLog($e);
         $mensagemErro = "Não foi possível cadastrar a notícia";
     }
