@@ -4,6 +4,8 @@ use Microblog\Enums\Destaque;
 use Microblog\Helpers\Utils;
 use Microblog\Helpers\Validacoes;
 use Microblog\Services\CategoriaServico;
+use Microblog\Services\NoticiaServico;
+use Microblog\Models\Noticia;
 
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../includes/cabecalho-admin.php';
@@ -50,8 +52,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $nomeDaImagemEnviada = Utils::upload($_FILES['imagem'] ?? null);
 
         // Criando o objeto com os dados da notícia
-        $noticia = new Noticia($titulo, $texto, $resumo, $nomeDaImagemEnviada, $destaqueEnum, $idUsuario, $categoria,)
-        
+        $noticia = new Noticia($titulo, $texto, $resumo, $nomeDaImagemEnviada, $destaqueEnum, $idUsuario, $categoria);
+
+        // Criando o serviço para poder inserir a nova notícia
+        $noticiaServico = new NoticiaServico();
+        $noticiaServico->inserir($noticia);
+
+        header("location:noticias.php");
+        exit;        
 
     } catch (InvalidArgumentException $e) {
         $mensagemErro = $e->getMessage();

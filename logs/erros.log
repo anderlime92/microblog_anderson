@@ -1,0 +1,10 @@
+[2026-11-13 10:50:45]
+Arquivo: C:\backend\microblog_anderson\src\Helpers\Validacoes.php
+Linha: 87
+Mensagem: Microblog\Helpers\Validacoes::validarCategoria(): Argument #1 ($categoriaId) must be of type int, string given, called in C:\backend\microblog_anderson\admin\noticia-insere.php on line 43
+
+[2026-11-13 10:53:03]
+Arquivo: C:\backend\microblog_anderson\src\Services\NoticiaServico.php
+Linha: 34
+Mensagem: Object of class Microblog\Enums\Destaque could not be converted to string
+
