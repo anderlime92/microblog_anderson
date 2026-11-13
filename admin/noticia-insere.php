@@ -1,4 +1,19 @@
-<?php require_once __DIR__ . '/../includes/cabecalho-admin.php'; ?>
+<?php
+require_once __DIR__ . '/../vendor/autoload.php';
+require_once __DIR__ . '/../includes/cabecalho-admin.php';
+
+// Capturando o id do usuário logado, ao qual a notícia que será inserida pertencerá
+$idUsuario = $_SESSION['id'];
+
+$mensagemErro = '';
+$listaDeCategorias = [];
+$titulo = '';
+$texto = '';
+$resumo = '';
+$destaque = Destaque::NAO->value;
+$categoria = '';
+$categoriasCarregadas = false;
+?>
 
 <div class="row">
     <article class="col-12 bg-white rounded shadow my-1 py-4">
