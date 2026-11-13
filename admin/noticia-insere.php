@@ -49,6 +49,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Processo da imagem
         $nomeDaImagemEnviada = Utils::upload($_FILES['imagem'] ?? null);
 
+        // Criando o objeto com os dados da notícia
+        $noticia = new Noticia($titulo, $texto, $resumo, $nomeDaImagemEnviada, $destaqueEnum, $idUsuario, $categoria,)
+        
+
     } catch (InvalidArgumentException $e) {
         $mensagemErro = $e->getMessage();
     } catch (Throwable $e){
