@@ -1,5 +1,6 @@
 <?php
 
+use Microblog\Enums\Destaque;
 use Microblog\Helpers\Utils;
 use Microblog\Services\CategoriaServico;
 
@@ -33,12 +34,27 @@ try {
 <div class="row">
     <article class="col-12 bg-white rounded shadow my-1 py-4">
         <h2 class="text-center">Inserir nova notícia</h2>
+
+        <?php if($mensagemErro !== ""): ?>
+            <div class="alert alert-danger text-center">
+                <?= Utils::escaparHtml($mensagemErro) ?>
+            </div>
+        <?php endif; ?>
+
+        <?php if($categoriasCarregadas): ?>
         <form class="mx-auto w-75" action="" method="post" id="form-inserir" name="form-inserir" enctype="multipart/form-data">
+        <?php endif; ?>
+
             <div class="mb-3">
                 <label class="form-label" for="categoria">Categoria:</label>
                 <select class="form-select" name="categoria" id="categoria">
-                    <option value="1" selected>Desenvolvimento</option>
-                    <option value="2">Tecnologia</option>
+                    <option value=""></option>
+
+                    <?php foreach($listaDeCategorias as $itemCategoria): ?>
+                        <option value="<?= Utils::escaparHtml($itemCategoria['id']) ?>">
+                            <?= Utils::escaparHtml($itemCategoria['nome']) ?>
+                        </option>
+                    <?php endforeach; ?>
                 </select>
             </div>
             <div class="mb-3">
