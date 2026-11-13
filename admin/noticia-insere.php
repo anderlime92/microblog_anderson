@@ -2,6 +2,7 @@
 
 use Microblog\Enums\Destaque;
 use Microblog\Helpers\Utils;
+use Microblog\Helpers\Validacoes;
 use Microblog\Services\CategoriaServico;
 
 require_once __DIR__ . '/../vendor/autoload.php';
@@ -27,7 +28,33 @@ try {
 } catch (Throwable $e) {
     Utils::registrarLog($e);
     $mensagemErro = "Não foi possível carregar as categorias";
-    //throw $th;
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    try {
+        $titulo = Utils::normalizarEntrada($_POST['titulo'] ?? '');
+        $texto = Utils::normalizarEntrada($_POST['texto'] ?? '');
+        $resumo = Utils::normalizarEntrada($_POST['resumo'] ?? '');
+        $destaque = Utils::normalizarEntrada($_POST['destaque'] ?? '');
+        $categoria = Utils::normalizarEntrada($_POST['categoria'] ?? '');
+
+        Validacoes::validarCategoria($categoria);
+        Validacoes::validarTitulo($titulo);
+        Validacoes::validarTexto($texto);
+        Validacoes::validarResumo($resumo);
+        Validacoes::validarDestaque($destaque);
+
+        $destaqueEnum = Destaque::from($destaque); // associado ao ENUM
+
+        // Processo da imagem
+        $nomeDaImagemEnviada = Utils::upload($_FILES['imagem'] ?? null);
+
+    } catch (InvalidArgumentException $e) {
+        $mensagemErro = $e->getMessage();
+    } catch {
+        Utils::registrarLog($e);
+        $mensagemErro = "Não foi possível cadastrar a notícia";
+    }
 }
 ?>
 
