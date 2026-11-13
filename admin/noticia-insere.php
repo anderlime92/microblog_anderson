@@ -38,7 +38,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $texto = Utils::normalizarEntrada($_POST['texto'] ?? '');
         $resumo = Utils::normalizarEntrada($_POST['resumo'] ?? '');
         $destaque = Utils::normalizarEntrada($_POST['destaque'] ?? '');
-        $categoria = Utils::normalizarEntrada($_POST['categoria'] ?? '');
+        $categoria = Utils::normalizarEntrada($_POST['categoria'] ?? '', 'inteiro');
 
         Validacoes::validarCategoria($categoria);
         Validacoes::validarTitulo($titulo);
