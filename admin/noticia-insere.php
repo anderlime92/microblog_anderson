@@ -59,16 +59,16 @@ try {
             </div>
             <div class="mb-3">
                 <label class="form-label" for="titulo">Título:</label>
-                <input class="form-control" type="text" id="titulo" name="titulo" value="Título provisório da notícia">
+                <input class="form-control" type="text" id="titulo" name="titulo" value="<?= Utils::escaparHtml($titulo) ?>">
             </div>
             <div class="mb-3">
                 <label class="form-label" for="texto">Texto:</label>
-                <textarea class="form-control" name="texto" id="texto" cols="50" rows="6">Texto provisório da notícia.</textarea>
+                <textarea class="form-control" name="texto" id="texto" cols="50" rows="6"><?= Utils::escaparHtml($texto) ?></textarea>
             </div>
             <div class="mb-3">
                 <label class="form-label" for="resumo">Resumo (máximo de 300 caracteres):</label>
                 <span id="maximo" class="badge bg-danger">0</span>
-                <textarea class="form-control" name="resumo" id="resumo" cols="50" rows="2" maxlength="300">Resumo provisório da notícia.</textarea>
+                <textarea class="form-control" name="resumo" id="resumo" cols="50" rows="2" maxlength="300"><?= Utils::escaparHtml($resumo) ?></textarea>
             </div>
             <div class="mb-3">
                 <label class="form-label" for="imagem">Selecione uma imagem:</label>
