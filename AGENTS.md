@@ -55,16 +55,18 @@ Há uma divergência histórica em `_materiais/modelagem-fisica.md` (nome de ban
 - `ControleDeAcesso` mantém `id`, `nome` e `tipo` na sessão. `exigirLogin()` protege o painel e `exigirAdmin()` restringe operações administrativas; o cabeçalho compartilhado do painel exige login.
 - Os tipos existentes são administrador e editor. O serviço de notícias lista todas as notícias para administrador e filtra pelo ID da sessão para editor. Verifique a autorização no endpoint ao alterar operações ou adicionar novas rotas.
 - O CRUD de usuários e categorias está implementado nos serviços e nas páginas administrativas; operações de gerenciamento dessas entidades exigem administrador. A edição de perfil mantém o tipo atual e permite preservar a senha quando o campo fica vazio.
-- `NoticiaServico` atualmente implementa listagem e inserção, não atualização ou exclusão. O formulário administrativo de inserção valida campos, categoria e destaque e usa `Utils::upload()`.
+- `NoticiaServico` implementa listagem, busca por ID, inserção, atualização e exclusão. `buscarPorId()`, `atualizar()` e `excluir()` permitem que administradores operem sobre qualquer notícia e restringem editores às próprias notícias.
+- A página `admin/noticia-atualiza.php` carrega a notícia pelo ID, mostra as categorias disponíveis com a categoria atual selecionada, valida os campos e persiste alterações; uma imagem nova é opcional e, quando não enviada, a imagem existente é preservada. O formulário administrativo de inserção também valida campos, categoria e destaque e usa `Utils::upload()`.
+- A página `admin/noticia-exclui.php` valida o ID, confirma que a notícia existe e pode ser acessada pelo usuário atual, e então solicita a exclusão ao serviço. Ela não apaga o arquivo de imagem do disco.
 - O upload permite JPEG, GIF, PNG e WebP, limita o tamanho a 2 MB, verifica tipo/extensão e grava em `images/`. Considere colisões de nomes e a segurança de arquivos ao modificar esse fluxo.
-- A listagem administrativa de notícias usa o banco. Algumas páginas públicas (por exemplo, a inicial e o detalhe da notícia) e a página administrativa `noticia-atualiza.php` ainda contêm conteúdo provisório/estático. Não as descreva como fluxos dinâmicos completos sem implementar e verificar essa integração.
+- A listagem administrativa de notícias usa o banco. Algumas páginas públicas (por exemplo, a inicial e o detalhe da notícia) ainda contêm conteúdo provisório/estático. Não as descreva como fluxos dinâmicos completos sem implementar e verificar essa integração.
 - A documentação geral pode não refletir os controles atuais: em particular, confira a autorização real de cada rota (as operações de categorias no código exigem administrador).
 
 ## Segurança e limitações conhecidas
 
 - Formulários de escrita/exclusão não têm proteção CSRF implementada no estado atual.
 - As páginas de exclusão existentes usam parâmetros GET. Preserve a autorização do servidor e considere essa limitação ao modificar ações de escrita.
-- A listagem filtra notícias de editores, mas antes de implementar edição/exclusão de notícias é necessário verificar a propriedade da notícia no servidor, além do papel do usuário.
+- As operações de busca, atualização e exclusão de notícia restringem editores à propriedade da notícia no servidor, além de conferir o papel do usuário.
 - A autenticação usa dados da sessão e não deve ser substituída por verificações apenas de interface ou links ocultos.
 - Validações existentes incluem campos obrigatórios, e-mail, tamanho mínimo de senha (5 caracteres), tipos enumerados e resumo (até 300 caracteres). Mudanças no esquema ou nas regras devem manter banco, modelo, formulário e validação coerentes.
 
