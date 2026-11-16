@@ -63,3 +63,9 @@ Ok, agora programe a página noticia-exclui.php, para tal, cheque e indentifique
 ```text
 Baseado no AGENTS.md crie o PROMPTS.md e guarde todos os meus prompts neste chat que tive com tu.
 ```
+
+### 8. Atualização dos documentos do branch
+
+```text
+Atualize o resumo.md de acordo com as alterações feitas neste branch, verifique e atualize o AGENTS.md de acordo com as alterações feitas au longo do branch atual e guarde os prompts restantes aqui realizados no PROMPTS.md.
+```

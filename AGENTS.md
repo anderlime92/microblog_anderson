@@ -2,7 +2,7 @@
 
 ## Visão geral
 
-Microblog é um portal de notícias didático, desenvolvido em PHP com orientação a objetos e MySQL/MariaDB via PDO. O objetivo é praticar autenticação, autorização, CRUD, validação, upload e integração entre páginas PHP e banco de dados. O projeto está em evolução: algumas páginas públicas e operações de notícias ainda são protótipos, portanto confirme a implementação atual antes de assumir que uma funcionalidade está concluída.
+Microblog é um portal de notícias didático, desenvolvido em PHP com orientação a objetos e MySQL/MariaDB via PDO. O objetivo é praticar autenticação, autorização, CRUD, validação, upload e integração entre páginas PHP e banco de dados. O projeto está em evolução: algumas páginas públicas ainda são protótipos, portanto confirme a implementação atual antes de assumir que uma funcionalidade está concluída.
 
 ## Ambiente e configuração
 
@@ -10,6 +10,7 @@ Microblog é um portal de notícias didático, desenvolvido em PHP com orientaç
 - O banco esperado pelo código é `microblog_2026`. O dump completo de referência está em `_materiais/microblog_2026_completo.sql`; há também `_materiais/microblog_2026_inicial.sql` para uma base inicial.
 - A conexão PDO e suas credenciais de desenvolvimento estão em `src/Database/ConexaoBD.php`. Revise a configuração para cada máquina/ambiente e não grave credenciais privadas no repositório.
 - `composer.json` configura apenas o autoload PSR-4: `Microblog\` aponta para `src/`. Os scripts PHP carregam `vendor/autoload.php`. Depois de alterar a configuração de autoload, regenere-o com `composer dump-autoload`.
+- `composer.lock` está versionado, mas não lista pacotes externos no estado atual. Não presuma que bibliotecas adicionais estão disponíveis sem atualizar as dependências do projeto.
 - Não há scripts de teste ou suíte de testes automatizados configurados no `composer.json` no estado atual. Para uma verificação de sintaxe, use `php -l caminho/do/arquivo.php` (ou o executável PHP do XAMPP se PHP não estiver no `PATH`). Testes que dependam de banco requerem MySQL/MariaDB configurado e o banco importado.
 
 ## Organização
@@ -22,7 +23,7 @@ Microblog é um portal de notícias didático, desenvolvido em PHP com orientaç
 - `src/Services/`: consultas e operações PDO para usuários, categorias e notícias.
 - `admin/`: painel e páginas de operação; `admin/js/` contém scripts de interface.
 - `includes/`: cabeçalhos, rodapés e blocos compartilhados.
-- `js/`, `css/`, `images/`: recursos da área pública e imagens.
+- `js/`, `css/`, `images/`: recursos da área pública e imagens. `images/` é a pasta de imagens da aplicação e também o destino dos uploads; materiais de imagem foram reorganizados para cá.
 - `_materiais/`: scripts SQL e materiais de apoio; não é código de aplicação.
 - `logs/erros.log`: destino usado para registrar exceções.
 

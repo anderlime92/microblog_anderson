@@ -1,22 +1,22 @@
 ﻿# Resumo do histórico da branch
 
-**Data da análise:** 13/11/2026
+**Data da análise:** 16/11/2026
 
-**Branch analisada:** `08_aula-13112026`
+**Branch analisada:** `09_aula-16112026`
 
-**HEAD:** `ec78bb9` — `Lista notícias conforme permissões do usuário`
+**HEAD:** `067f800` — `Documenta contexto e prompts da conversa`
 
 **Base da comparação:** `2512912` (ancestral comum com `main`)
 
-**Escopo:** 58 commits desde a base; 34 arquivos alterados, com 1.326 inserções e 151 remoções.
+**Escopo:** 67 commits desde a base; 58 arquivos alterados, com 1.795 inserções e 202 remoções.
 
-**Estado ao iniciar a análise:** branch sincronizada com `origin/08_aula-13112026` e árvore de trabalho limpa.
+**Estado ao iniciar a análise:** branch sincronizada com `origin/09_aula-16112026` e árvore de trabalho limpa.
 
 ## Visão geral
 
-A branch atual consolida o fluxo de autenticação e autorização do painel administrativo, finaliza a edição do perfil do usuário e implementa cadastro e listagem de notícias com persistência no banco. Depois da base de CRUD de usuários e categorias, o desenvolvimento evoluiu para um fluxo completo de login, sessão e controle de acesso por perfil; em seguida, foram adicionados o formulário de inserção de notícias, validações, upload de imagem e listagem filtrada conforme o perfil.
+A branch atual consolida a autenticação e autorização do painel, o CRUD administrativo de usuários e categorias, e o CRUD de notícias com escopo por perfil. Além de cadastrar e listar notícias, o sistema agora carrega os dados para edição, permite atualizar os campos e a imagem opcional, e exclui notícias respeitando a propriedade do editor. Também foram organizadas as imagens na pasta de recursos da aplicação e incluídos os arquivos de referência para agentes e prompts.
 
-O projeto já está em uma etapa mais próxima do uso real: o sistema identifica o usuário pelo e-mail, valida a senha, cria a sessão com nome, tipo e ID, bloqueia páginas administrativas sem login e separa visibilidade de links e ações por nível de acesso. O painel também exibe feedback mais amigável e impede ações inseguras, como a exclusão da própria conta. O formulário de notícias valida os dados e grava a publicação usando PDO; a listagem administrativa lê os dados do banco e aplica as permissões de administrador e editor.
+O fluxo de notícias aplica autorização no serviço e nas rotas: administradores podem operar sobre qualquer notícia e editores apenas sobre as próprias. A edição carrega todas as categorias e seleciona a categoria atual; valida título, texto, resumo, destaque e categoria; e mantém a imagem existente quando não há novo upload. A página de exclusão confirma a existência/acessibilidade do registro antes de chamar o serviço. As páginas públicas de notícias ainda incluem conteúdo estático provisório.
 
 ## Evolução dos commits
 
@@ -26,8 +26,9 @@ O projeto já está em uma etapa mais próxima do uso real: o sistema identifica
 | 10/11 a 12/11 | `863ac7e` a `deeee07` | Login funcional com senha, sessão, proteção de rotas, controle de acesso por perfil, logout e atualização do próprio perfil. |
 | 13/11 | `b75dc4f` a `623a6d9` | Início do cadastro de notícias: conexão do serviço, formulário com categorias, preenchimento seguro dos campos, validações, upload e persistência; correções no INSERT e inclusão de imagens de apoio. |
 | 13/11 | `ec78bb9` | Listagem administrativa de notícias conectada ao banco, com todas as publicações e autores para admin e apenas publicações próprias para editor. |
+| 16/11 | `f55a36f` a `067f800` | Configuração do projeto para IDE, ajuste local da conexão, reorganização das imagens, documentação para agentes e prompts, carregamento/edição/exclusão de notícias com autorização por perfil. |
 
-O HEAD atual é `ec78bb9`. Desde a análise anterior foram adicionados dois commits: `832855e` (atualização anterior do resumo) e `ec78bb9` (listagem de notícias por perfil). A comparação foi feita contra a base ancestral `2512912`; a referência remota `origin/08_aula-13112026` está sincronizada com o branch local e a árvore de trabalho está limpa.
+O HEAD atual é `067f800`. Desde o resumo anterior (`f9c84e6`), oito commits foram adicionados: configuração de IDE, ajuste da configuração local do banco, movimentação e reorganização das imagens, criação do `AGENTS.md`, carregamento da notícia no formulário de edição, implementação da atualização e exclusão de notícias e registro dos prompts. A referência remota `origin/09_aula-16112026` está sincronizada com o branch local; a árvore de trabalho estava limpa na análise.
 
 ## Funcionalidades implementadas
 
@@ -54,15 +55,26 @@ O HEAD atual é `ec78bb9`. Desde a análise anterior foram adicionados dois comm
 - Após a atualização, o nome do usuário em sessão também é sincronizado com `$_SESSION['nome']`, para manter o painel consistente.
 - O perfil usa `Utils::escaparHtml()` para evitar renderização insegura dos dados em tela.
 
-### Cadastro de notícias
+### Notícias: cadastro, listagem, edição e exclusão
 
 - [admin/noticia-insere.php](admin/noticia-insere.php) carrega as categorias do banco, mantém os dados digitados após erros, valida categoria, título, texto, resumo e destaque, processa a imagem e associa a notícia ao usuário autenticado.
-- [src/Services/NoticiaServico.php](src/Services/NoticiaServico.php) implementa a inserção parametrizada da notícia via PDO, incluindo categoria, autor e valor textual do enum `Destaque`.
+- [src/Services/NoticiaServico.php](src/Services/NoticiaServico.php) implementa operações parametrizadas via PDO: `inserir()`, `listarTodos()`, `buscarPorId()`, `atualizar()` e `excluir()`.
 - O método `listarTodos()` de [src/Services/NoticiaServico.php](src/Services/NoticiaServico.php) retorna todas as notícias com o nome do autor para administradores; para editores, filtra pelo ID da sessão e não inclui o nome do autor.
 - [admin/noticias.php](admin/noticias.php) apresenta a listagem real do banco, a contagem dinâmica, os autores somente para administradores, os links de operação e uma mensagem quando não há notícias.
+- `buscarPorId()` seleciona os dados da notícia e os nomes do autor/categoria; o editor recebe apenas notícia associada ao ID da própria sessão.
+- [admin/noticia-atualiza.php](admin/noticia-atualiza.php) usa o ID da URL para carregar a notícia, lista as categorias disponíveis e seleciona a categoria atual. No POST, valida os campos, preserva a imagem caso não seja enviado arquivo e redireciona à listagem depois da atualização.
+- `atualizar()` não altera o autor da publicação e restringe updates de editor por `usuario_id`, mesmo que a rota seja chamada diretamente.
+- [admin/noticia-exclui.php](admin/noticia-exclui.php) valida o ID, confirma o acesso à notícia e chama `excluir()`. O serviço filtra por usuário para editores. O arquivo de imagem não é removido do disco, pois pode ser reutilizado por outras notícias.
 - [src/Models/Noticia.php](src/Models/Noticia.php) permite criar notícias sem informar previamente ID e data, que ficam a cargo do banco.
 - [src/Helpers/Utils.php](src/Helpers/Utils.php) valida o upload (tipo, extensão e tamanho até 2 MB) e salva imagens em `images/`.
-- Foram adicionadas imagens de apoio ao conteúdo de teste: `felicidade.jpg`, `mais.jpg` e `sanduiche.jpg`.
+- As imagens usadas pela aplicação foram movidas de `_materiais/Fotos` para `images/`; alguns arquivos que estavam em `images/Fotos` foram reorganizados diretamente em `images/`. As imagens `felicidade.jpg`, `mais.jpg` e `sanduiche.jpg` também estão disponíveis nessa pasta.
+
+### Documentação e ambiente
+
+- [AGENTS.md](AGENTS.md) registra arquitetura, configuração, padrões, autorização e limitações conhecidas para agentes de desenvolvimento.
+- [PROMPTS.md](PROMPTS.md) mantém um resumo operacional e as solicitações do usuário nesta conversa.
+- `composer.lock` foi gerado, mas não fixa pacotes externos: o arquivo registra listas `packages` e `packages-dev` vazias. O `composer.json` mantém o autoload PSR-4 do projeto.
+- Foram adicionadas configurações de projeto em `.idea/` para IntelliJ. A conexão de banco continua sendo configurada em `src/Database/ConexaoBD.php`; os valores locais não devem ser copiados para documentação pública.
 
 ### Mensagens e UX do painel
 
@@ -79,23 +91,26 @@ O HEAD atual é `ec78bb9`. Desde a análise anterior foram adicionados dois comm
 - O painel administrativo passou a exibir informações do usuário autenticado dinamicamente, em vez de depender apenas de dados fixos.
 - O serviço de notícias passou a inserir os campos com placeholders PDO corretos; também foi corrigido o vínculo de `usuario_id`, que deve receber o ID do usuário, e o enum `Destaque` é persistido pelo seu valor textual (`sim`/`nao`).
 - O ID da categoria enviado pelo formulário é normalizado para inteiro antes da validação e da persistência.
+- A edição e a exclusão de notícias foram concluídas com consultas PDO parametrizadas e condições de propriedade para editores.
+- A edição de notícia agora mantém a imagem atual quando o upload é opcional e repopula os campos enviados quando a validação falha.
+- As imagens de aplicação foram retiradas da pasta de materiais e centralizadas em `images/`, que é também o destino dos uploads.
 
 ## Limitações e riscos observados
 
 1. **Proteção CSRF ausente:** ainda não há token ou verificação de origem para formulários de escrita e exclusão.
-2. **Autorização detalhada incompleta:** o sistema distingue apenas administrador e não-administrador; a lógica de editor/usuário comum ainda não está detalhada em todas as rotas.
+2. **Autorização deve continuar sendo verificada por rota:** há apenas os papéis `admin` e `editor`; as rotas de notícias aplicam escopo por propriedade, mas qualquer nova operação precisa manter a validação no servidor.
 3. **Exclusões por GET:** páginas de exclusão ainda dependem de links/GET, o que é mais frágil do que um fluxo por POST com confirmação.
 4. **Sem suíte de testes automatizados:** não há testes de regressão para login, sessão, perfil, permissões e exclusão.
-5. **Autorização dos endpoints de operação de notícias deve ser conferida:** a listagem filtra os registros para editores, mas é necessário garantir que as páginas de atualização e exclusão também validem a propriedade da notícia no servidor.
+5. **Integração com o banco não foi exercitada nesta análise:** a sintaxe e a lógica foram revisadas, mas a execução de operações CRUD depende de banco local configurado.
 6. **Feedback de erros de edição e formulário ainda pode ser melhorado:** há pontos de validação e UX que ainda podem ser refinados para retorno mais consistente ao usuário.
 
 ## Testes e validação
 
 - Não foram encontrados arquivos de testes automatizados no projeto no momento desta revisão.
-- A sintaxe de `admin/noticia-insere.php`, `admin/noticias.php` e `src/Services/NoticiaServico.php` foi validada com `php -l`, sem erros.
+- A sintaxe de `admin/noticia-atualiza.php`, `admin/noticia-exclui.php` e `src/Services/NoticiaServico.php` foi validada com `php -l`, sem erros.
 - Não houve execução de testes de integração PHP/MySQL; a gravação no banco ainda precisa ser confirmada no ambiente local.
 - O comportamento foi revisado por leitura do código e do histórico de commits até o HEAD atual.
 
 ## Síntese
 
-A branch `08_aula-13112026` entrega um salto importante no projeto: além da autenticação, sessão, controle de permissões, logout e atualização de perfil, o cadastro e a listagem de notícias já se conectam ao banco, respeitando o escopo de visualização de admin e editor. O próximo passo natural é completar as operações de atualização e exclusão de notícias com autorização por propriedade, reforçar a segurança com CSRF e cobrir os fluxos com testes automatizados.
+A branch `09_aula-16112026` entrega o fluxo administrativo de notícias com cadastro, listagem, edição e exclusão, mantendo acesso de editores restrito às próprias publicações e acesso de administradores a todas. O projeto também dispõe de documentação para continuidade por outra IA e de imagens organizadas para a aplicação. Próximos passos recomendados: proteger mutações contra CSRF, trocar exclusões GET por POST e acrescentar testes automatizados e integração com banco.
