@@ -47,6 +47,38 @@ final class NoticiaServico
         }
     }
 
+    public function buscarPorId(int $id): ?array
+    {
+        $usuarioEhAdmin = ControleDeAcesso::usuarioEhAdmin();
+
+        $sql = "SELECT n.id, n.data, n.titulo, n.texto, n.resumo, n.imagem,
+                n.destaque, n.usuario_id, n.categoria_id,
+                u.nome AS autor, c.nome AS categoria
+                FROM noticias n
+                LEFT JOIN usuarios u ON n.usuario_id = u.id
+                LEFT JOIN categorias c ON n.categoria_id = c.id
+                WHERE n.id = :id";
+
+        if (!$usuarioEhAdmin) {
+            $sql .= " AND n.usuario_id = :usuario_id";
+        }
+
+        try {
+            $consulta = $this->conexao->prepare($sql);
+            $consulta->bindValue(":id", $id, PDO::PARAM_INT);
+
+            if (!$usuarioEhAdmin) {
+                $consulta->bindValue(":usuario_id", (int) $_SESSION['id'], PDO::PARAM_INT);
+            }
+
+            $consulta->execute();
+            return $consulta->fetch() ?: null;
+        } catch (PDOException $e) {
+            Utils::registrarLog($e);
+            throw new Exception("Erro ao buscar notícia por ID");
+        }
+    }
+
     public function inserir(Noticia $noticia): void
     {
         $sql = "INSERT INTO noticias (titulo, texto, resumo, imagem, destaque, usuario_id, categoria_id)
