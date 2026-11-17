@@ -112,6 +112,25 @@ final class NoticiaServico
         }
     }
 
+    public function buscarPublicaPorId(int $id): ?array
+    {
+        $sql = "SELECT n.id, n.data, n.titulo, n.texto, n.resumo, n.imagem,
+                u.nome AS autor
+                FROM noticias n
+                LEFT JOIN usuarios u ON n.usuario_id = u.id
+                WHERE n.id = :id";
+
+        try {
+            $consulta = $this->conexao->prepare($sql);
+            $consulta->bindValue(":id", $id, PDO::PARAM_INT);
+            $consulta->execute();
+            return $consulta->fetch() ?: null;
+        } catch (PDOException $e) {
+            Utils::registrarLog($e);
+            throw new Exception("Erro ao buscar notícia pública por ID");
+        }
+    }
+
     public function atualizar(Noticia $noticia): void
     {
         $id = $noticia->getId();
