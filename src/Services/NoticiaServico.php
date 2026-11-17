@@ -47,6 +47,39 @@ final class NoticiaServico
         }
     }
 
+    public function listarDestaques(): array
+    {
+        $sql = "SELECT id, data, titulo, resumo, imagem
+                FROM noticias
+                WHERE destaque = :destaque
+                ORDER BY data DESC";
+
+        try {
+            $consulta = $this->conexao->prepare($sql);
+            $consulta->bindValue(":destaque", "sim");
+            $consulta->execute();
+            return $consulta->fetchAll();
+        } catch (PDOException $e) {
+            Utils::registrarLog($e);
+            throw new Exception("Erro ao listar notícias em destaque");
+        }
+    }
+
+    public function listarPublicas(): array
+    {
+        $sql = "SELECT id, data, titulo, resumo, imagem
+                FROM noticias
+                ORDER BY data DESC";
+
+        try {
+            $consulta = $this->conexao->query($sql);
+            return $consulta->fetchAll();
+        } catch (PDOException $e) {
+            Utils::registrarLog($e);
+            throw new Exception("Erro ao listar notícias públicas");
+        }
+    }
+
     public function buscarPorId(int $id): ?array
     {
         $usuarioEhAdmin = ControleDeAcesso::usuarioEhAdmin();

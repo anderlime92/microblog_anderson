@@ -15,7 +15,7 @@ final class ConexaoBD
     private static PDO $conexao;
     private static string $servidor = "localhost";
     private static string $usuario = "root";
-    private static string $senha = "";
+    private static string $senha = "senacpenha";
     private static string $banco = "microblog_2026";
 
     public static function getConexao(): PDO
