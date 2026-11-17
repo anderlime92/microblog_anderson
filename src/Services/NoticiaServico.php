@@ -99,6 +99,31 @@ final class NoticiaServico
         }
     }
 
+    public function buscarPublicas(string $termo, int $limite = 10): array
+    {
+        $sql = "SELECT id, titulo
+                FROM noticias
+                WHERE titulo LIKE :termo_titulo
+                    OR resumo LIKE :termo_resumo
+                    OR texto LIKE :termo_texto
+                ORDER BY data DESC
+                LIMIT :limite";
+
+        try {
+            $consulta = $this->conexao->prepare($sql);
+            $termoBusca = "%" . $termo . "%";
+            $consulta->bindValue(":termo_titulo", $termoBusca);
+            $consulta->bindValue(":termo_resumo", $termoBusca);
+            $consulta->bindValue(":termo_texto", $termoBusca);
+            $consulta->bindValue(":limite", $limite, PDO::PARAM_INT);
+            $consulta->execute();
+            return $consulta->fetchAll();
+        } catch (PDOException $e) {
+            Utils::registrarLog($e);
+            throw new Exception("Erro ao buscar notícias públicas");
+        }
+    }
+
     public function buscarPorId(int $id): ?array
     {
         $usuarioEhAdmin = ControleDeAcesso::usuarioEhAdmin();
