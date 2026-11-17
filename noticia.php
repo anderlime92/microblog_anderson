@@ -49,7 +49,7 @@ require_once __DIR__ . '/includes/cabecalho.php';
                 <span><?= Utils::escaparHtml($autor) ?></span>
             </p>
             <img src="images/<?= Utils::escaparHtml(rawurlencode($imagem)) ?>" alt="<?= Utils::escaparHtml((string) $dadosNoticia['titulo']) ?>" class="float-start pe-2 img-fluid">
-            <p class="ajusta-texto"><?= nl2br(Utils::escaparHtml((string) $dadosNoticia['texto'])) ?></p>
+            <p class="ajusta-texto"><?= Utils::escaparHtml((string) $dadosNoticia['texto']) ?></p>
         </article>
     <?php endif; ?>
 </div>

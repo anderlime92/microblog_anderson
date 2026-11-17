@@ -1,3 +1,18 @@
+<?php
+use Microblog\Helpers\Utils;
+use Microblog\Services\CategoriaServico;
+
+require_once __DIR__ . '/../vendor/autoload.php';
+
+$listaDeCategorias = [];
+
+try {
+  $categoriaServico = new CategoriaServico();
+  $listaDeCategorias = $categoriaServico->listarTodos();
+} catch (Throwable $e) {
+  // Mantém a área pública disponível mesmo quando não for possível carregar o menu.
+}
+?>
 <!DOCTYPE html>
 <html lang="pt-br" class="h-100">
 
@@ -29,8 +44,13 @@
               <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">Categorias</a>
               <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
 
-                <li><a class="dropdown-item" href="noticias-por-categoria.php?id=1">Desenvolvimento</a></li>
-                <li><a class="dropdown-item" href="noticias-por-categoria.php?id=2">Tecnologia</a></li>
+                <?php if (empty($listaDeCategorias)): ?>
+                  <li><span class="dropdown-item-text text-muted">Nenhuma categoria disponível</span></li>
+                <?php else: ?>
+                  <?php foreach ($listaDeCategorias as $itemCategoria): ?>
+                    <li><a class="dropdown-item" href="noticias-por-categoria.php?id=<?= (int) $itemCategoria['id'] ?>"><?= Utils::escaparHtml((string) $itemCategoria['nome']) ?></a></li>
+                  <?php endforeach; ?>
+                <?php endif; ?>
                 
               </ul>
             </li>
