@@ -69,3 +69,47 @@ Baseado no AGENTS.md crie o PROMPTS.md e guarde todos os meus prompts neste chat
 ```text
 Atualize o resumo.md de acordo com as alterações feitas neste branch, verifique e atualize o AGENTS.md de acordo com as alterações feitas au longo do branch atual e guarde os prompts restantes aqui realizados no PROMPTS.md.
 ```
+
+### 9. Destaques e listagem geral públicas
+
+```text
+Ok, embasado(analize-os também) em/nos README.md, resumo.md, AGENTS.md e PROMPTS.md, programe a página index.php para exibição das notícias que são **destaque**, mostrando a **imagem**, o **título **e o **resumo**, e com o **link dinâmico **configurado para abrir a página **noticia.php** quando clicar em cima da notícia e logo após, faça a programação do arquivo includes/todas.php onde será realizada a exibição de todas as noticias.
+
+Atente-se aos padrões das classes, os nomes de métodos, propriedades, variáveis, arquivos, variáveis, arquivos, namespaces, etc.
+```
+
+### 10. Detalhe público da notícia
+
+```text
+Beleza agora, denovo embasado(analize-os também) em/nos README.md, resumo.md, AGENTS.md e PROMPTS.md, programe a página noticia.php para exibição da notícia e seus detalhes: data (formatada para dia/mês/ano), autor, imagem e texto porém, no caso do autor, caso a notícia não tenha um autor associado a ela, deve ser exibido como alternativa o texto "Equipe Microblog".
+
+Atente-se aos padrões das classes, os nomes de métodos, propriedades, variáveis, arquivos, variáveis, arquivos, namespaces, etc.
+```
+
+### 11. Ajuste manual no detalhe da notícia
+
+```text
+Fiz uma correção/ajuste removendo a variável nl2br ok. Aguade novos requerimentos/pedidos.
+```
+
+### 12. Notícias por categoria e menu dinâmico
+
+```text
+Bom agora novamente embasado(analize-os também) em/nos README.md, resumo.md, AGENTS.md e PROMPTS.md, programe a página noticias-por-categoria.php para exibição das notícias filtradas pela categoria escolhida no menu do site. É desejável que título, data (formatada para dia/mês/ano), autor e resumo sejam exibidos. Para o autor, caso a notícia não tenha um autor associado a ela, deve ser exibido como alternativa o texto "Equipe Microblog" e também configure o link dinâmico para abrir a página noticia.php quando clicar em cima da notícia.
+
+Atente-se: foque-se primariamente à programação do arquivo includes/cabecalho.php para fazer com que o menu mostre todas as categorias existentes e claro confira os padrões das classes, os nomes de métodos, propriedades, variáveis, arquivos, variáveis, arquivos, namespaces, etc.
+```
+
+### 13. Busca dinâmica pública
+
+```text
+Enfim, mais uma vez embasado(analise-os também) em/nos README.md, resumo.md, AGENTS.md e PROMPTS.md, programe os arquivos resultados.php e busca.js (resultados.php deve utilizar PHP e busca.js deve utilizar JS).
+
+Além dos enfoques aos padrões das classes, os nomes de métodos, propriedades, variáveis, arquivos, variáveis, arquivos, namespaces, etc, Atente-se também a programação em ambos os arquivos pois o resultados.php continuará sendo o responsável pela comunicação com as classes operações no banco de dados e o JS programado em busca.js fará a comunicação com resultados.php usando fetch e as interações necessárias no Front-End. O JS de busca.js não precisa ser complexo e/ou avançado se não for realmente necessário assim também como o PHP de resultados.php.
+```
+
+### 14. Atualização da documentação da branch
+
+```text
+Atualize o resumo.md de acordo com as alterações feitas neste branch, verifique e atualize o AGENTS.md de acordo com as alterações feitas au longo do branch atual e guarde os prompts restantes aqui realizados no PROMPTS.md.
+```

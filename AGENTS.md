@@ -2,7 +2,7 @@
 
 ## Visão geral
 
-Microblog é um portal de notícias didático, desenvolvido em PHP com orientação a objetos e MySQL/MariaDB via PDO. O objetivo é praticar autenticação, autorização, CRUD, validação, upload e integração entre páginas PHP e banco de dados. O projeto está em evolução: algumas páginas públicas ainda são protótipos, portanto confirme a implementação atual antes de assumir que uma funcionalidade está concluída.
+Microblog é um portal de notícias didático, desenvolvido em PHP com orientação a objetos e MySQL/MariaDB via PDO. O objetivo é praticar autenticação, autorização, CRUD, validação, upload e integração entre páginas PHP e banco de dados. O painel administrativo e as principais páginas públicas consultam o banco; confirme sempre o estado atual do código antes de assumir que uma funcionalidade está concluída.
 
 ## Ambiente e configuração
 
@@ -56,11 +56,13 @@ Há uma divergência histórica em `_materiais/modelagem-fisica.md` (nome de ban
 - `ControleDeAcesso` mantém `id`, `nome` e `tipo` na sessão. `exigirLogin()` protege o painel e `exigirAdmin()` restringe operações administrativas; o cabeçalho compartilhado do painel exige login.
 - Os tipos existentes são administrador e editor. O serviço de notícias lista todas as notícias para administrador e filtra pelo ID da sessão para editor. Verifique a autorização no endpoint ao alterar operações ou adicionar novas rotas.
 - O CRUD de usuários e categorias está implementado nos serviços e nas páginas administrativas; operações de gerenciamento dessas entidades exigem administrador. A edição de perfil mantém o tipo atual e permite preservar a senha quando o campo fica vazio.
-- `NoticiaServico` implementa listagem, busca por ID, inserção, atualização e exclusão. `buscarPorId()`, `atualizar()` e `excluir()` permitem que administradores operem sobre qualquer notícia e restringem editores às próprias notícias.
+- `NoticiaServico` implementa CRUD administrativo com escopo de perfil e consultas públicas. `buscarPorId()`, `atualizar()` e `excluir()` permitem que administradores operem sobre qualquer notícia e restringem editores às próprias notícias. Os métodos de leitura pública incluem `listarDestaques()`, `listarPublicas()`, `listarPublicasPorCategoria()`, `buscarPublicas()` e `buscarPublicaPorId()`; eles não filtram por sessão.
 - A página `admin/noticia-atualiza.php` carrega a notícia pelo ID, mostra as categorias disponíveis com a categoria atual selecionada, valida os campos e persiste alterações; uma imagem nova é opcional e, quando não enviada, a imagem existente é preservada. O formulário administrativo de inserção também valida campos, categoria e destaque e usa `Utils::upload()`.
 - A página `admin/noticia-exclui.php` valida o ID, confirma que a notícia existe e pode ser acessada pelo usuário atual, e então solicita a exclusão ao serviço. Ela não apaga o arquivo de imagem do disco.
 - O upload permite JPEG, GIF, PNG e WebP, limita o tamanho a 2 MB, verifica tipo/extensão e grava em `images/`. Considere colisões de nomes e a segurança de arquivos ao modificar esse fluxo.
-- A listagem administrativa de notícias usa o banco. Algumas páginas públicas (por exemplo, a inicial e o detalhe da notícia) ainda contêm conteúdo provisório/estático. Não as descreva como fluxos dinâmicos completos sem implementar e verificar essa integração.
+- A página pública inicial lista destaques e todas as notícias; o detalhe consulta uma notícia por ID; o menu público carrega as categorias existentes; e a página de categoria lista notícias da categoria escolhida. Essas páginas tratam valores dinâmicos com escape HTML e exibem “Equipe Microblog” quando o autor não está associado. O detalhe público atual mostra título, texto, data, autor e imagem, mas não exibe a categoria, apesar da descrição do README.
+- A busca pública usa `js/busca.js` com `fetch` para enviar POST a `resultados.php`. O endpoint aceita termos de 2 a 100 caracteres e retorna até dez títulos encontrados por título, resumo ou texto. A busca depende de JavaScript; o método de serviço usa `LIKE`, portanto `%` e `_` digitados são curingas. As listagens públicas não têm paginação.
+- O cabeçalho busca categorias no banco; se essa consulta falhar, renderiza o restante da página com o menu sem categorias. Nas consultas públicas, falhas são convertidas em mensagens genéricas para a interface, sem expor detalhes do banco.
 - A documentação geral pode não refletir os controles atuais: em particular, confira a autorização real de cada rota (as operações de categorias no código exigem administrador).
 
 ## Segurança e limitações conhecidas

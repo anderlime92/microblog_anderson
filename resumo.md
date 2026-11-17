@@ -1,22 +1,22 @@
 ﻿# Resumo do histórico da branch
 
-**Data da análise:** 16/11/2026
+**Data da análise:** 17/11/2026
 
-**Branch analisada:** `09_aula-16112026`
+**Branch analisada:** `10_aula-17112026`
 
-**HEAD:** `067f800` — `Documenta contexto e prompts da conversa`
+**HEAD:** `8ff130b` — `Implementa busca dinâmica de notícias`
 
-**Base da comparação:** `2512912` (ancestral comum com `main`)
+**Base da comparação:** `35ad172` — `09_aula-16112026`
 
-**Escopo:** 67 commits desde a base; 58 arquivos alterados, com 1.795 inserções e 202 remoções.
+**Escopo desta atualização:** quatro commits na branch atual, com integração das principais páginas públicas e busca dinâmica.
 
-**Estado ao iniciar a análise:** branch sincronizada com `origin/09_aula-16112026` e árvore de trabalho limpa.
+**Estado ao iniciar a análise:** branch sincronizada com `origin/10_aula-17112026` e árvore de trabalho limpa.
 
 ## Visão geral
 
-A branch atual consolida a autenticação e autorização do painel, o CRUD administrativo de usuários e categorias, e o CRUD de notícias com escopo por perfil. Além de cadastrar e listar notícias, o sistema agora carrega os dados para edição, permite atualizar os campos e a imagem opcional, e exclui notícias respeitando a propriedade do editor. Também foram organizadas as imagens na pasta de recursos da aplicação e incluídos os arquivos de referência para agentes e prompts.
+A branch herda a autenticação e autorização do painel, os CRUDs administrativos de usuários, categorias e notícias, com escopo de edição por perfil. Nesta etapa, as páginas públicas passaram a consultar o banco: a inicial exibe destaques e listagem geral; o detalhe carrega uma notícia pelo ID; o menu mostra categorias do banco; a página de categoria filtra notícias; e a busca usa `fetch` para consultar o servidor enquanto a pessoa digita.
 
-O fluxo de notícias aplica autorização no serviço e nas rotas: administradores podem operar sobre qualquer notícia e editores apenas sobre as próprias. A edição carrega todas as categorias e seleciona a categoria atual; valida título, texto, resumo, destaque e categoria; e mantém a imagem existente quando não há novo upload. A página de exclusão confirma a existência/acessibilidade do registro antes de chamar o serviço. As páginas públicas de notícias ainda incluem conteúdo estático provisório.
+O painel mantém autorização no serviço e nas rotas: administradores podem operar sobre qualquer notícia e editores apenas sobre as próprias. As consultas públicas não dependem da sessão. O detalhe e as listagens escapam valores dinâmicos na saída; notícias sem autor exibem “Equipe Microblog”. A sintaxe foi revisada, mas não houve teste de integração com o banco nesta atualização.
 
 ## Evolução dos commits
 
@@ -26,9 +26,10 @@ O fluxo de notícias aplica autorização no serviço e nas rotas: administrador
 | 10/11 a 12/11 | `863ac7e` a `deeee07` | Login funcional com senha, sessão, proteção de rotas, controle de acesso por perfil, logout e atualização do próprio perfil. |
 | 13/11 | `b75dc4f` a `623a6d9` | Início do cadastro de notícias: conexão do serviço, formulário com categorias, preenchimento seguro dos campos, validações, upload e persistência; correções no INSERT e inclusão de imagens de apoio. |
 | 13/11 | `ec78bb9` | Listagem administrativa de notícias conectada ao banco, com todas as publicações e autores para admin e apenas publicações próprias para editor. |
-| 16/11 | `f55a36f` a `067f800` | Configuração do projeto para IDE, ajuste local da conexão, reorganização das imagens, documentação para agentes e prompts, carregamento/edição/exclusão de notícias com autorização por perfil. |
+| 16/11 | `f55a36f` a `067f800` | Configuração do projeto para IDE, reorganização das imagens, documentação para agentes e prompts e conclusão do CRUD administrativo de notícias com autorização por perfil. |
+| 17/11 | `bafff1b` a `8ff130b` | Integração da página inicial, detalhe público, listagem por categoria, menu dinâmico e busca assíncrona de notícias. |
 
-O HEAD atual é `067f800`. Desde o resumo anterior (`f9c84e6`), oito commits foram adicionados: configuração de IDE, ajuste da configuração local do banco, movimentação e reorganização das imagens, criação do `AGENTS.md`, carregamento da notícia no formulário de edição, implementação da atualização e exclusão de notícias e registro dos prompts. A referência remota `origin/09_aula-16112026` está sincronizada com o branch local; a árvore de trabalho estava limpa na análise.
+O HEAD atual é `8ff130b`. Desde a base desta branch (`35ad172`), foram adicionados quatro commits: `bafff1b` (notícias públicas na inicial), `43e7a81` (detalhe público), `3361248` (listagem por categoria) e `8ff130b` (busca dinâmica). A referência remota `origin/10_aula-17112026` está sincronizada com o branch local; a árvore de trabalho estava limpa na análise.
 
 ## Funcionalidades implementadas
 
@@ -69,6 +70,16 @@ O HEAD atual é `067f800`. Desde o resumo anterior (`f9c84e6`), oito commits for
 - [src/Helpers/Utils.php](src/Helpers/Utils.php) valida o upload (tipo, extensão e tamanho até 2 MB) e salva imagens em `images/`.
 - As imagens usadas pela aplicação foram movidas de `_materiais/Fotos` para `images/`; alguns arquivos que estavam em `images/Fotos` foram reorganizados diretamente em `images/`. As imagens `felicidade.jpg`, `mais.jpg` e `sanduiche.jpg` também estão disponíveis nessa pasta.
 
+### Área pública e busca
+
+- [index.php](index.php) consulta notícias destacadas pelo método `listarDestaques()` e inclui [includes/todas.php](includes/todas.php), que lista as notícias públicas em ordem decrescente de data. Imagens ausentes nos destaques usam `images/abstrato.jpg` como alternativa.
+- [noticia.php](noticia.php) valida o ID recebido, carrega a notícia pública por `buscarPublicaPorId()` e exibe título, texto, data, autor e imagem. Para notícia sem autor, mostra “Equipe Microblog”; para imagem ausente, usa uma imagem alternativa. A consulta pública atual não inclui/exibe a categoria, embora o README ainda a descreva como parte do detalhe.
+- [includes/cabecalho.php](includes/cabecalho.php) consulta as categorias por `CategoriaServico::listarTodos()` e monta os links do menu dinamicamente. Uma falha ao consultar as categorias não impede a renderização do restante do cabeçalho.
+- [noticias-por-categoria.php](noticias-por-categoria.php) valida o ID, confirma a existência da categoria e lista título, data (dia/mês/ano), autor e resumo. O método `listarPublicasPorCategoria()` usa `LEFT JOIN` para autor, com fallback “Equipe Microblog” na página. Categoria inexistente responde com status HTTP 404; categoria sem notícias recebe mensagem informativa.
+- [resultados.php](resultados.php) atende somente POST, limita a busca a 100 caracteres e exige pelo menos dois caracteres; devolve fragmento HTML com até dez títulos encontrados ou mensagens de estado. Erros de banco são registrados e apresentados sem detalhes técnicos ao público.
+- [js/busca.js](js/busca.js) faz consultas com `fetch` após debounce de 300 ms, cancela requisições anteriores, atualiza a área acessível de resultados, permite envio do formulário e fecha a lista ao clicar fora. A interface de busca depende de JavaScript.
+- [src/Services/NoticiaServico.php](src/Services/NoticiaServico.php) inclui métodos de leitura pública: `listarDestaques()`, `listarPublicas()`, `listarPublicasPorCategoria()`, `buscarPublicas()` e `buscarPublicaPorId()`. A busca procura por título, resumo e texto com `LIKE`, ordena por data e limita a dez resultados. Os métodos públicos não aplicam o escopo administrativo de sessão.
+
 ### Documentação e ambiente
 
 - [AGENTS.md](AGENTS.md) registra arquitetura, configuração, padrões, autorização e limitações conhecidas para agentes de desenvolvimento.
@@ -101,16 +112,18 @@ O HEAD atual é `067f800`. Desde o resumo anterior (`f9c84e6`), oito commits for
 2. **Autorização deve continuar sendo verificada por rota:** há apenas os papéis `admin` e `editor`; as rotas de notícias aplicam escopo por propriedade, mas qualquer nova operação precisa manter a validação no servidor.
 3. **Exclusões por GET:** páginas de exclusão ainda dependem de links/GET, o que é mais frágil do que um fluxo por POST com confirmação.
 4. **Sem suíte de testes automatizados:** não há testes de regressão para login, sessão, perfil, permissões e exclusão.
-5. **Integração com o banco não foi exercitada nesta análise:** a sintaxe e a lógica foram revisadas, mas a execução de operações CRUD depende de banco local configurado.
-6. **Feedback de erros de edição e formulário ainda pode ser melhorado:** há pontos de validação e UX que ainda podem ser refinados para retorno mais consistente ao usuário.
+5. **Integração com o banco não foi exercitada nesta análise:** a sintaxe e a disponibilidade dos métodos foram verificadas, mas a execução das consultas públicas depende de banco local configurado.
+6. **Busca com curingas:** `%` e `_` digitados são interpretados como curingas do `LIKE`; as listagens não têm paginação e a busca retorna no máximo dez resultados.
+7. **Detalhe público sem categoria:** o README descreve categoria como parte dos detalhes, mas a consulta pública atual e a página `noticia.php` não a exibem.
 
 ## Testes e validação
 
 - Não foram encontrados arquivos de testes automatizados no projeto no momento desta revisão.
-- A sintaxe de `admin/noticia-atualiza.php`, `admin/noticia-exclui.php` e `src/Services/NoticiaServico.php` foi validada com `php -l`, sem erros.
-- Não houve execução de testes de integração PHP/MySQL; a gravação no banco ainda precisa ser confirmada no ambiente local.
-- O comportamento foi revisado por leitura do código e do histórico de commits até o HEAD atual.
+- A sintaxe dos arquivos públicos PHP alterados nesta branch e de `src/Services/NoticiaServico.php` foi validada com `php -l`, sem erros; `js/busca.js` passou em `node --check`.
+- O autoload foi consultado para confirmar os métodos de serviço adicionados.
+- Não houve execução de testes de integração PHP/MySQL; o comportamento com banco e dados reais ainda precisa ser confirmado no ambiente local.
+- O estado da branch foi revisado até o HEAD `8ff130b`.
 
 ## Síntese
 
-A branch `09_aula-16112026` entrega o fluxo administrativo de notícias com cadastro, listagem, edição e exclusão, mantendo acesso de editores restrito às próprias publicações e acesso de administradores a todas. O projeto também dispõe de documentação para continuidade por outra IA e de imagens organizadas para a aplicação. Próximos passos recomendados: proteger mutações contra CSRF, trocar exclusões GET por POST e acrescentar testes automatizados e integração com banco.
+A branch `10_aula-17112026` mantém os fluxos administrativos herdados e integra páginas públicas dinâmicas para destaques, listagem geral, detalhe, categorias e busca assíncrona. A autorização administrativa continua respeitando o papel e a propriedade das notícias, enquanto as consultas públicas não dependem de sessão. Próximos passos recomendados: testar a integração com MySQL, avaliar paginação, tratar `%` e `_` como literais se esse for o comportamento desejado, alinhar o detalhe público à descrição do README quanto à categoria e acrescentar testes automatizados.
